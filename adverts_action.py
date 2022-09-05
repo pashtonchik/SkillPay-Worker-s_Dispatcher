@@ -33,10 +33,10 @@ def get_amounts(min_amount, key, email, asset='BTC', fiat='RUB'):
     f'type=selling&currency={fiat}&cryptocurrency={asset}&' \
     f'isOwnerVerificated=false&isOwnerTrusted=false&isOwnerActive=false&'\
     f'amount={min_amount}&paymethod=443&amountType=currency&paymethodSlug=tinkoff'
-    print(url)
+    # print(url)
     r = requests.get(url, headers=headers, proxies=proxies)
 
-    print(r.text)
+    # print(r.text)
     return r.json()['data']
 
 
@@ -45,7 +45,7 @@ def parse_average_amount(amounts_info):
     sum_amounts = 0
     for amount in amounts_info:
         sum_amounts += float(amount['rate'])
-        print(amount['rate'])
+        # print(amount['rate'])
     return sum_amounts / 10
 
 
@@ -56,6 +56,8 @@ def get_all_adverts(key, email):
     # print(r.text)
     exists_advert_id = requests.get('http://194.58.92.160:8000/api/adverts/')
     exists_advert_id = exists_advert_id.json()
+    # print(exists_advert_id)
+    # print(r.json())
     for advert in r.json():
         if not str(advert['id']) in exists_advert_id:
             add_advert = {
@@ -71,17 +73,30 @@ def get_all_adverts(key, email):
 
 def edit_rate_value_advert(advert_id, average_price, key, email):
     headers = authorization(key, email)
+    
     url = f'https://bitzlato.com/api/p2p/dsa/{advert_id}'
-    url_db = 'http://194.58.92.160:8000/api/update/advert'
+    
+    url_db = 'http://194.58.92.160:8000/api/update/advert/'
+    
     changes = {
         'rateValue': average_price,
     }
+    
+    r = requests.put(url, headers=headers, proxies=proxies, json=changes)
+    
+    # print(r.json())
+    headers = authorization(key, email)
+    get_ads = requests.get(url, headers=headers, proxies=proxies)
+    print(get_ads.text)
     changes_db = {
         'advert_id': advert_id,
         'amount': average_price,
+        'is_active': True if get_ads.json()['status'] == 'active' else False    
     }
-    r = requests.put(url, headers=headers, proxies=proxies, json=changes)
+
+    # print(r.json())
     r_db = requests.post(url_db, json=changes_db)
+    print(r_db.status_code, r_db.text)
     # print(r.text)
     return r.json()
 
