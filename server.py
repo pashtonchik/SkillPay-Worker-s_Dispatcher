@@ -19,7 +19,7 @@ def add_worker():
     key = data['key']
     command = 'check_adverts'
     email = data['email']
-    print(data['key'])    
+    # print(data['key'])    
     if (command == 'check_adverts'):
         th = threading.Thread(target=adverts_action.check_advert, args=(key, id, email))
         th.start()
