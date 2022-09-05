@@ -20,7 +20,7 @@ def catch_error(func):
                 'text': str(e),
             }
             r = requests.post(url_error, json=data)
-            # raise e
+            raise e
     return wrapper
 
 
@@ -29,7 +29,7 @@ proxies = {
     'https': 'http://CMg6mg:fHoqJx@185.168.248.24:8000'
 }
 
-@catch_error
+# @catch_error
 def authorization(key, email_bz):
     dt = datetime.datetime.now()
     ts = time.mktime(dt.timetuple())
@@ -40,10 +40,11 @@ def authorization(key, email_bz):
         "jti": hex(random.getrandbits(64))
     }
     token = jws.sign(claims, key, headers={"kid": "1"}, algorithm=ALGORITHMS.ES256)
+    # print ({'Authorization': "Bearer " + token})
     return {'Authorization': "Bearer " + token}
 
 
-@catch_error
+# @catch_error
 def get_amounts(min_amount, key, email, asset='BTC', fiat='RUB'):
     headers = authorization(key, email)
     url = f'https://bitzlato.bz/api2/p2p/exchange/dsa/?lang=ru&limit=10&skip=0&'\
@@ -55,7 +56,7 @@ def get_amounts(min_amount, key, email, asset='BTC', fiat='RUB'):
     return r.json()['data']
 
 
-@catch_error
+# @catch_error
 def parse_average_amount(amounts_info):
     sum_amounts = 0
     for amount in amounts_info:
@@ -63,16 +64,17 @@ def parse_average_amount(amounts_info):
     return sum_amounts / 10
 
 
-@catch_error
+# @catch_error
 def get_all_adverts(key, email):
     headers = authorization(key, email)
-
+    print(headers)
     url = 'https://bitzlato.com/api/p2p/dsa/all'
     r = requests.get(url, headers=headers, proxies=proxies)
 
     exists_advert_id = requests.get('http://194.58.92.160:8000/api/adverts/').json()
-
+    print(r.json())
     for advert in r.json():
+        print(advert)
         if not str(advert['id']) in exists_advert_id:
             add_advert = {
                 'advert_id': advert['id'],
@@ -85,7 +87,7 @@ def get_all_adverts(key, email):
     return r.json()
 
 
-@catch_error
+# @catch_error
 def edit_rate_value_advert(advert_id, average_price, key, email):
     
     url = f'https://bitzlato.com/api/p2p/dsa/{advert_id}'
@@ -128,7 +130,7 @@ def edit_rate_value_advert(advert_id, average_price, key, email):
     return r.json()
 
 
-@catch_error
+# @catch_error
 def stop_advert(advert_id, key, email):
     headers = authorization(key, email)
     url = f'https://bitzlato.com/api/p2p/dsa/{advert_id}'
@@ -140,7 +142,7 @@ def stop_advert(advert_id, key, email):
     return r.json()
 
 
-@catch_error
+# @catch_error
 def run_advert(advert_id, key, email):
     headers = authorization(key, email)
     url = f'https://bitzlato.com/api/p2p/dsa/{advert_id}'
@@ -152,7 +154,7 @@ def run_advert(advert_id, key, email):
     r = requests.put(url, headers=headers, proxies=proxies, json=changes)
     return r.json()
 
-@catch_error
+# @catch_error
 def synchron(advert_id, key, email):
 
     url = f'https://bitzlato.com/api/p2p/dsa/{advert_id}'
@@ -174,7 +176,7 @@ def synchron(advert_id, key, email):
     
 
 
-@catch_error
+# @catch_error
 def check_advert(key, bz_id, email):
     for adv in get_all_adverts(key, email):
         limit_min = adv['minAmount']

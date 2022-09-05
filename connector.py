@@ -22,7 +22,7 @@ def catch_error(func):
 URL_DJANGO = 'http://194.58.92.160:8000/'
 URL_FLASK = 'http://127.0.0.1:5000/'
 
-@catch_error
+# @catch_error
 def connector():
     while True:
         try:
