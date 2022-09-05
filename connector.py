@@ -7,5 +7,5 @@ def connector():
     while True:
         req_django = requests.get(URL_DJANGO + 'api/tasks').json()
         req_flask = requests.post(URL_FLASK + 'check_adverts', json=req_django['BZ_users'])
-        print(req_flask.status_code)
-        time.sleep(5)
+        # print(req_flask.status_code)
+        time.sleep(15)

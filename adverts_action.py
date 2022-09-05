@@ -33,10 +33,8 @@ def get_amounts(min_amount, key, email, asset='BTC', fiat='RUB'):
     f'type=selling&currency={fiat}&cryptocurrency={asset}&' \
     f'isOwnerVerificated=false&isOwnerTrusted=false&isOwnerActive=false&'\
     f'amount={min_amount}&paymethod=443&amountType=currency&paymethodSlug=tinkoff'
-    # print(url)
     r = requests.get(url, headers=headers, proxies=proxies)
 
-    # print(r.text)
     return r.json()['data']
 
 
@@ -50,14 +48,14 @@ def parse_average_amount(amounts_info):
 
 
 def get_all_adverts(key, email):
+    # print('[GET ALL ADV]')
     headers = authorization(key, email)
     url = 'https://bitzlato.com/api/p2p/dsa/all'
     r = requests.get(url, headers=headers, proxies=proxies)
     # print(r.text)
     exists_advert_id = requests.get('http://194.58.92.160:8000/api/adverts/')
     exists_advert_id = exists_advert_id.json()
-    # print(exists_advert_id)
-    # print(r.json())
+
     for advert in r.json():
         if not str(advert['id']) in exists_advert_id:
             add_advert = {
@@ -72,65 +70,91 @@ def get_all_adverts(key, email):
 
 
 def edit_rate_value_advert(advert_id, average_price, key, email):
-    headers = authorization(key, email)
     
     url = f'https://bitzlato.com/api/p2p/dsa/{advert_id}'
     
     url_db = 'http://194.58.92.160:8000/api/update/advert/'
     
+
     changes = {
         'rateValue': average_price,
     }
-    
+
+    headers = authorization(key, email)
     r = requests.put(url, headers=headers, proxies=proxies, json=changes)
     
-    # print(r.json())
-    headers = authorization(key, email)
-    get_ads = requests.get(url, headers=headers, proxies=proxies)
-    print(get_ads.text)
-    changes_db = {
-        'advert_id': advert_id,
-        'amount': average_price,
-        'is_active': True if get_ads.json()['status'] == 'active' else False    
+    advert = {
+        'advert_id' : advert_id
     }
 
-    # print(r.json())
-    r_db = requests.post(url_db, json=changes_db)
-    print(r_db.status_code, r_db.text)
-    # print(r.text)
+    get_price_garantex = 'http://194.58.92.160:8000/api/get_exchange_garantex/'
+    price_garantex = requests.get(get_price_garantex).json()['btc-rub']
+    
+    headers = authorization(key, email)
+    get_adv = requests.get(url, headers=headers, proxies=proxies)
+
+    advert_info = requests.post('http://194.58.92.160:8000/api/get_advert_info/', json=advert)
+    print(advert_info.json()['revenue_percentage'])
+    if (advert_info.json()['revenue_percentage'] != None):
+        percent = float(advert_info.json()['revenue_percentage'])
+        side_percent = ( (float(price_garantex) * 1.002) / (float(get_adv.json()['rateValue']) * 0.995)- 1) * 100
+        if side_percent < percent:
+            print(float(price_garantex) * 1.002, float(get_adv.json()['rateValue']) * 0.995)
+            stop_advert(advert_id=advert_id, key=key, email=email)
+        else:
+            run_advert(advert_id=advert_id, key=key, email=email)
+
+
+
     return r.json()
 
 
 def stop_advert(advert_id, key, email):
     headers = authorization(key, email)
     url = f'https://bitzlato.com/api/p2p/dsa/{advert_id}'
-    url_db = 'http://194.58.92.160:8000/api/update/advert'
+    
     changes = {
         'status': 'pause',
     }
-    changes_db = {
-        'advert_id': advert_id,
-        'is_active': False,
-    }
+
     r = requests.put(url, headers=headers, proxies=proxies, json=changes)
-    r_db = requests.post(url_db, json=changes_db)
     return r.json()
 
 
 def run_advert(advert_id, key, email):
     headers = authorization(key, email)
     url = f'https://bitzlato.com/api/p2p/dsa/{advert_id}'
-    url_db = 'http://194.58.92.160:8000/api/update/advert'
+    
     changes = {
         'status': 'active',
     }
+
+    r = requests.put(url, headers=headers, proxies=proxies, json=changes)
+    return r.json()
+
+def synchron(advert_id, key, email):
+
+    url = f'https://bitzlato.com/api/p2p/dsa/{advert_id}'
+    url_db = 'http://194.58.92.160:8000/api/update/advert/'
+
+    headers = authorization(key, email)
+    
+    get_ads = requests.get(url, headers=headers, proxies=proxies)
+    
+    # print(get_ads.text)
+    
     changes_db = {
         'advert_id': advert_id,
-        'is_active': True,
+        'amount': get_ads.json()['rateValue'],
+        'is_active': True if get_ads.json()['status'] == 'active' else False    
     }
-    r = requests.put(url, headers=headers, proxies=proxies, json=changes)
+    # print(changes_db)
     r_db = requests.post(url_db, json=changes_db)
-    return r.json()
+    
+    # print(r_db.status_code, r_db.text)
+
+
+    
 
 
 def check_advert(key, bz_id, email):
@@ -139,5 +163,7 @@ def check_advert(key, bz_id, email):
         adv_id = adv['id']
         average_amount = parse_average_amount(get_amounts(limit_min, key=key, email=email))
         edit_rate_value_advert(adv_id, average_amount, key, email)
-        print('ok')
+        # print('[YES]')
+        synchron(adv_id, key, email)
+        # print('ok')
         
