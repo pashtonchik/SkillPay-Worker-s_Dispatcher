@@ -30,6 +30,5 @@ def connector():
             for i in req_django:
                 req_flask = requests.post(URL_FLASK + 'check_adverts', json=i['user'])
         except:
-            time.sleep(15)
-            
-        
+            pass
+        time.sleep(15)
