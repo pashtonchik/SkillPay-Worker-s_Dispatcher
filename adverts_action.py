@@ -9,10 +9,6 @@ from jose.constants import ALGORITHMS
 proxies = {
     'https': 'http://CMg6mg:fHoqJx@185.168.248.24:8000'
 }
-email = 'skill834092@gmail.com'
-
-key_bz = {"kty": "EC", "alg": "ES256", "crv": "P-256", "x": "yl31Sm28W2IS9UKEKmVoewQYYFp3ToyrRlZn-hiMhDU", "y": "9mWeLBzW0pwgM41gpgKq_p5zm2Lok5QBWbOfJhWCzwM", "d": "eGjueiOVTWmvl7gfk3hcnPpWn1Apb2BUsXrAeLA8Tr4"}
-
 
 def authorization(key, email_bz):
     dt = datetime.datetime.now()
@@ -39,22 +35,19 @@ def get_amounts(min_amount, key, email, asset='BTC', fiat='RUB'):
 
 
 def parse_average_amount(amounts_info):
-    # print(amounts_info)
     sum_amounts = 0
     for amount in amounts_info:
         sum_amounts += float(amount['rate'])
-        # print(amount['rate'])
     return sum_amounts / 10
 
 
 def get_all_adverts(key, email):
-    # print('[GET ALL ADV]')
     headers = authorization(key, email)
+
     url = 'https://bitzlato.com/api/p2p/dsa/all'
     r = requests.get(url, headers=headers, proxies=proxies)
-    # print(r.text)
-    exists_advert_id = requests.get('http://194.58.92.160:8000/api/adverts/')
-    exists_advert_id = exists_advert_id.json()
+
+    exists_advert_id = requests.get('http://194.58.92.160:8000/api/adverts/').json()
 
     for advert in r.json():
         if not str(advert['id']) in exists_advert_id:
@@ -73,9 +66,6 @@ def edit_rate_value_advert(advert_id, average_price, key, email):
     
     url = f'https://bitzlato.com/api/p2p/dsa/{advert_id}'
     
-    url_db = 'http://194.58.92.160:8000/api/update/advert/'
-    
-
     changes = {
         'rateValue': average_price,
     }
@@ -94,17 +84,22 @@ def edit_rate_value_advert(advert_id, average_price, key, email):
     get_adv = requests.get(url, headers=headers, proxies=proxies)
 
     advert_info = requests.post('http://194.58.92.160:8000/api/get_advert_info/', json=advert)
-    print(advert_info.json()['revenue_percentage'])
+
     if (advert_info.json()['revenue_percentage'] != None):
+    
         percent = float(advert_info.json()['revenue_percentage'])
+    
         side_percent = ( (float(price_garantex) * 1.002) / (float(get_adv.json()['rateValue']) * 0.995)- 1) * 100
+    
         if side_percent < percent:
+    
             print(float(price_garantex) * 1.002, float(get_adv.json()['rateValue']) * 0.995)
+    
             stop_advert(advert_id=advert_id, key=key, email=email)
+    
         else:
+    
             run_advert(advert_id=advert_id, key=key, email=email)
-
-
 
     return r.json()
 
@@ -116,7 +111,6 @@ def stop_advert(advert_id, key, email):
     changes = {
         'status': 'pause',
     }
-
     r = requests.put(url, headers=headers, proxies=proxies, json=changes)
     return r.json()
 
@@ -124,7 +118,7 @@ def stop_advert(advert_id, key, email):
 def run_advert(advert_id, key, email):
     headers = authorization(key, email)
     url = f'https://bitzlato.com/api/p2p/dsa/{advert_id}'
-    
+
     changes = {
         'status': 'active',
     }
@@ -140,19 +134,15 @@ def synchron(advert_id, key, email):
     headers = authorization(key, email)
     
     get_ads = requests.get(url, headers=headers, proxies=proxies)
-    
-    # print(get_ads.text)
-    
+
     changes_db = {
         'advert_id': advert_id,
         'amount': get_ads.json()['rateValue'],
         'is_active': True if get_ads.json()['status'] == 'active' else False    
     }
-    # print(changes_db)
+    
     r_db = requests.post(url_db, json=changes_db)
     
-    # print(r_db.status_code, r_db.text)
-
 
     
 
