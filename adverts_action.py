@@ -93,7 +93,7 @@ def edit_rate_value_advert(advert_id, average_price, key, email):
     
         if side_percent < percent:
     
-            print(float(price_garantex) * 1.002, float(get_adv.json()['rateValue']) * 0.995)
+            # print(float(price_garantex) * 1.002, float(get_adv.json()['rateValue']) * 0.995)
     
             stop_advert(advert_id=advert_id, key=key, email=email)
     

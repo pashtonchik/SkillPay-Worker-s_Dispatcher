@@ -8,5 +8,4 @@ def connector():
         req_django = requests.get(URL_DJANGO + 'api/tasks').json()
         for i in req_django:
             req_flask = requests.post(URL_FLASK + 'check_adverts', json=i['user'])
-            print(req_flask.status_code)
         time.sleep(15)
