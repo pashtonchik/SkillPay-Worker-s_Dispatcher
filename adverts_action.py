@@ -67,14 +67,14 @@ def parse_average_amount(amounts_info):
 # @catch_error
 def get_all_adverts(key, email):
     headers = authorization(key, email)
-    print(headers)
+    # print(headers)
     url = 'https://bitzlato.com/api/p2p/dsa/all'
     r = requests.get(url, headers=headers, proxies=proxies)
 
     exists_advert_id = requests.get('http://194.58.92.160:8000/api/adverts/').json()
-    print(r.json())
+    # print(r.json())
     for advert in r.json():
-        print(advert)
+        # print(advert)
         if not str(advert['id']) in exists_advert_id:
             add_advert = {
                 'advert_id': advert['id'],
