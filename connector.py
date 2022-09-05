@@ -1,11 +1,35 @@
 import requests
 import time 
 
+import requests
+url_error = 'http://194.58.92.160:8000/api/error/'
+import json
+
+def catch_error(func):
+    def wrapper(*args, **kwargs):
+        try:
+            func(*args, **kwargs)
+        except Exception as e:
+            data = {
+                'error_class': str(type(e)),
+                'target': func.__name__,
+                'text': str(e),
+            }
+            r = requests.post(url_error, json=data)
+            # raise e
+    return wrapper
+
 URL_DJANGO = 'http://194.58.92.160:8000/'
 URL_FLASK = 'http://127.0.0.1:5000/'
+
+@catch_error
 def connector():
     while True:
-        req_django = requests.get(URL_DJANGO + 'api/tasks').json()
-        for i in req_django:
-            req_flask = requests.post(URL_FLASK + 'check_adverts', json=i['user'])
-        time.sleep(15)
+        try:
+            req_django = requests.get(URL_DJANGO + 'api/tasks').json()
+            for i in req_django:
+                req_flask = requests.post(URL_FLASK + 'check_adverts', json=i['user'])
+        except:
+            time.sleep(15)
+            
+        
