@@ -1,21 +1,28 @@
 import time
 import requests
 
-while True:
-    garantex_resp = requests.get('https://garantex.io/api/v2/depth?market=btcrub').json()
+def parse_garantex():
+    while True:
+        garantex_resp = requests.get('https://garantex.io/api/v2/depth?market=btcrub')
+        if (garantex_resp.status_code == 200):
+            garantex_resp = garantex_resp.json()
+            orders = garantex_resp['bids']
+            for order in orders:
+                if float(order['volume']) >= 0.5:
+                    actually_price = order['price']
+                    break
 
-    orders = garantex_resp['bids']
-    for order in orders:
-        if float(order['volume']) >= 0.5:
-            actually_price = order['price']
-            break
+            exchange_info = {
+                'fiat': 'BTC',
+                'asset': 'RUB',
+                'price': actually_price,
+            }
 
-    exchange_info = {
-        'fiat': 'BTC',
-        'asset': 'RUB',
-        'price': actually_price,
-    }
-
-    server_resp = requests.post('http://127.0.0.1:8000/api/update/', json=exchange_info)
-    time.sleep(15)
-
+            server_resp = requests.post('http://194.58.92.160:8000/api/update/garantex', json=exchange_info)
+            if (server_resp.status_code != 200):
+                print(f'[ERROR] {server_resp.status_code}')
+            else:
+                print(f'[POLLING]')
+        else:
+            print(f'[ERROR Garantex]')
+        time.sleep(15)
