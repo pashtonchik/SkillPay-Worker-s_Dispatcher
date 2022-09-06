@@ -22,7 +22,7 @@ def add_worker():
     email = data['email']
     # print(data['key'])    
     proxy = data['proxy']
-    print(proxy)
+    # print(proxy)
     if (command == 'check_adverts'):
         th = threading.Thread(target=adverts_action.check_advert, args=(key, id, email, proxy))
         th.start()

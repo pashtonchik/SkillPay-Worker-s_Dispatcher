@@ -37,7 +37,6 @@ def authorization(key, email_bz):
         "jti": hex(random.getrandbits(64))
     }
     token = jws.sign(claims, key, headers={"kid": "1"}, algorithm=ALGORITHMS.ES256)
-    # print ({'Authorization': "Bearer " + token})
     return {'Authorization': "Bearer " + token}
 
 
@@ -64,20 +63,15 @@ def parse_average_amount(amounts_info):
 @catch_error
 def get_all_adverts(key, email, proxy):
     headers = authorization(key, email)
-    # print(headers)
     url = 'https://bitzlato.com/api/p2p/dsa/all'
     r = requests.get(url, headers=headers, proxies=proxy)
 
-    # print(r.json())
     headers = authorization(key, email)
     url = 'https://bitzlato.com/api/auth/whoami'
     user_id = requests.get(url, headers=headers, proxies=proxy).json()
-    # print(user_id)
     if (r.status_code == 200):
         exists_advert_id = requests.get('http://194.58.92.160:8000/api/adverts/').json()
-        # print(exists_advert_id)
         for advert in r.json():
-            # print(advert)
             if not str(advert['id']) in exists_advert_id:
                 add_advert = {
                     'advert_id': advert['id'],
@@ -88,7 +82,6 @@ def get_all_adverts(key, email, proxy):
                     'user' : user_id['userId']
                 }
                 r1 = requests.post('http://194.58.92.160:8000/api/create/advert/', json=add_advert)
-                # print(r1.status_code)
         return r.json()
     else:
         return []
@@ -116,7 +109,6 @@ def edit_rate_value_advert(advert_id, average_price, key, email, proxy):
             get_adv = requests.get(url, headers=headers, proxies=proxy)
             if (get_adv.status_code == 200):
                 advert_info = requests.post('http://194.58.92.160:8000/api/get_advert_info/', json=advert)
-                # print(advert_info)
                 if (advert_info.json()['revenue_percentage'] != None):
                 
                     percent = float(advert_info.json()['revenue_percentage'])
@@ -125,7 +117,6 @@ def edit_rate_value_advert(advert_id, average_price, key, email, proxy):
                 
                     if side_percent < percent:
                 
-                        # print(float(price_garantex) * 1.002, float(get_adv.json()['rateValue']) * 0.995)
                 
                         stop_advert(advert_id=advert_id, key=key, email=email, proxy=proxy)
                 
@@ -197,7 +188,5 @@ def check_advert(key, bz_id, email, proxy):
         adv_id = adv['id']
         average_amount = parse_average_amount(get_amounts(limit_min, key=key, email=email, proxy=proxy))
         edit_rate_value_advert(adv_id, average_amount, key, email, proxy=proxy)
-        # print('[YES]')
         synchron(adv_id, key, email, proxy)
-        # print('ok')
         

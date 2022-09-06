@@ -43,7 +43,6 @@ def authorization(key, email_bz):
         "jti": hex(random.getrandbits(64))
     }
     token = jws.sign(claims, key, headers={"kid": "1"}, algorithm=ALGORITHMS.ES256)
-    # print ({'Authorization': "Bearer " + token})
     return {'Authorization': "Bearer " + token}
 
 @catch_error
@@ -67,7 +66,6 @@ def synchron(trade_id, key, email, proxy):
     
     get_trade = requests.get(url, headers=headers, proxies=proxy)
 
-    # print(get_trade.text)
 
     if (get_trade.status_code == 200):
         changes_db = {
@@ -83,7 +81,6 @@ def synchron(trade_id, key, email, proxy):
 
 @catch_error
 def check_trades(key, bz_id, email, proxy):
-    # print(proxy)
     for adv in get_all_trades(key, email):
         header = authorization(key=key, email_bz=email)
         id = adv['id']
@@ -113,5 +110,4 @@ def check_trades(key, bz_id, email, proxy):
                 'partner' : partner
             }
             add_trade = requests.post('http://194.58.92.160:8000/api/create/trade/', json=data)
-            # print(add_trade.status_code)
         synchron(email=email, key=key, trade_id=id, proxy=proxy)
