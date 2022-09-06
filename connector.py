@@ -29,6 +29,7 @@ def connector():
             req_django = requests.get(URL_DJANGO + 'api/tasks').json()
             for i in req_django:
                 req_flask = requests.post(URL_FLASK + 'check_adverts', json=i['user'])
-        except:
+        except Exception as e:
+            print(e)
             pass
-        time.sleep(15)
+        time.sleep(15) 
