@@ -29,8 +29,9 @@ def authorization(key, email_bz):
 
 if __name__ == '__main__':
 
-    key = {"kty":"EC","alg":"ES256","crv":"P-256","x":"EMhj-c0DymACAdAR_b6FrZmSiYe7cXURDMSx18goIcY","y":"fUWCMJ9a4xpCmoDtU4fQENLm-h8VO1cpLhLk2rLgK18","d":"ysOqmzM6Y2rME_fmQEOnp0ix6gumffXp4OXTi7Q5lBg"}
-    email = 'alex@lbnv.net'
+    key = {"kty": "EC", "alg": "ES256", "crv": "P-256", "x": "yl31Sm28W2IS9UKEKmVoewQYYFp3ToyrRlZn-hiMhDU", "y": "9mWeLBzW0pwgM41gpgKq_p5zm2Lok5QBWbOfJhWCzwM", "d": "eGjueiOVTWmvl7gfk3hcnPpWn1Apb2BUsXrAeLA8Tr4"}
+
+    email = 'skill834092@gmail.com'
 
     headers = authorization(key, email)
 

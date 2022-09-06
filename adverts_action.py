@@ -71,9 +71,15 @@ def get_all_adverts(key, email):
     # print(headers)
     url = 'https://bitzlato.com/api/p2p/dsa/all'
     r = requests.get(url, headers=headers, proxies=proxies)
+
+    print(r.json())
+    headers = authorization(key, email)
+    url = 'https://bitzlato.com/api/auth/whoami'
+    user_id = requests.get(url, headers=headers, proxies=proxies).json()
+    print(user_id)
     if (r.status_code == 200):
         exists_advert_id = requests.get('http://194.58.92.160:8000/api/adverts/').json()
-        # print(r.json())
+        # print(exists_advert_id)
         for advert in r.json():
             # print(advert)
             if not str(advert['id']) in exists_advert_id:
@@ -83,8 +89,10 @@ def get_all_adverts(key, email):
                     'limit_min': advert['minAmount'],
                     'limit_max': advert['maxAmount'],
                     'is_active': True if (advert['status'] == 'active') else False,
+                    'user' : user_id['userId']
                 }
                 r1 = requests.post('http://194.58.92.160:8000/api/create/advert/', json=add_advert)
+                # print(r1.status_code)
         return r.json()
     else:
         return []
@@ -112,7 +120,7 @@ def edit_rate_value_advert(advert_id, average_price, key, email):
             get_adv = requests.get(url, headers=headers, proxies=proxies)
             if (get_adv.status_code == 200):
                 advert_info = requests.post('http://194.58.92.160:8000/api/get_advert_info/', json=advert)
-                print(advert_info)
+                # print(advert_info)
                 if (advert_info.json()['revenue_percentage'] != None):
                 
                     percent = float(advert_info.json()['revenue_percentage'])
