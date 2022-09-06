@@ -84,30 +84,32 @@ def check_trades(key, bz_id, email, proxy):
     for adv in get_all_trades(key, email):
         header = authorization(key=key, email_bz=email)
         id = adv['id']
-        adv_info = requests.get(f'https://bitzlato.bz/api/p2p/trade/{id}', headers=header, proxies=proxy).json()
-        cryptocurrency = adv['cryptocurrency']['code']
-        cryptocurrency_amount = adv['cryptocurrency']['amount']
-        currency = adv['currency']['code']
-        currency_amount = adv['currency']['amount']
-        paymethod = adv['paymethod']
-        details = adv_info['details']
-        counterDetails = adv_info['counterDetails']
-        status = adv_info['status']
-        partner = adv_info['partner']
-        exists_trades = requests.get('http://194.58.92.160:8000/api/get/trades/').json()
-        if not str(id) in exists_trades:
-            data = {
-                'id' : id,
-                'bzuser_id': bz_id,
-                'cryptocurrency' :  cryptocurrency,
-                'cryptocurrency_amount' : cryptocurrency_amount,
-                'currency':currency,
-                'currency_amount': currency_amount,
-                'paymethod':paymethod,
-                'details': str(details),
-                'counterDetails' : str(counterDetails),
-                'status':status,
-                'partner' : partner
-            }
-            add_trade = requests.post('http://194.58.92.160:8000/api/create/trade/', json=data)
+        adv_requests = requests.get(f'https://bitzlato.bz/api/p2p/trade/{id}', headers=header, proxies=proxy)
+        if (adv_requests.status_code == 200):
+            adv_info = adv_requests.json()
+            cryptocurrency = adv['cryptocurrency']['code']
+            cryptocurrency_amount = adv['cryptocurrency']['amount']
+            currency = adv['currency']['code']
+            currency_amount = adv['currency']['amount']
+            paymethod = adv['paymethod']
+            details = adv_info['details']
+            counterDetails = adv_info['counterDetails']
+            status = adv_info['status']
+            partner = adv_info['partner']
+            exists_trades = requests.get('http://194.58.92.160:8000/api/get/trades/').json()
+            if not str(id) in exists_trades:
+                data = {
+                    'id' : id,
+                    'bzuser_id': bz_id,
+                    'cryptocurrency' :  cryptocurrency,
+                    'cryptocurrency_amount' : cryptocurrency_amount,
+                    'currency':currency,
+                    'currency_amount': currency_amount,
+                    'paymethod':paymethod,
+                    'details': str(details),
+                    'counterDetails' : str(counterDetails),
+                    'status':status,
+                    'partner' : partner
+                }
+                add_trade = requests.post('http://194.58.92.160:8000/api/create/trade/', json=data)
         synchron(email=email, key=key, trade_id=id, proxy=proxy)
