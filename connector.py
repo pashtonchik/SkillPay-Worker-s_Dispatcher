@@ -8,7 +8,8 @@ import json
 def catch_error(func):
     def wrapper(*args, **kwargs):
         try:
-            func(*args, **kwargs)
+            res = func(*args, **kwargs)
+            return res
         except Exception as e:
             data = {
                 'error_class': str(type(e)),
@@ -16,13 +17,13 @@ def catch_error(func):
                 'text': str(e),
             }
             r = requests.post(url_error, json=data)
-            # raise e
+            pass
     return wrapper
 
 URL_DJANGO = 'http://194.58.92.160:8000/'
 URL_FLASK = 'http://127.0.0.1:5000/'
 
-# @catch_error
+@catch_error
 def connector():
     while True:
         try:
