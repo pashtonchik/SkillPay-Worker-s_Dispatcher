@@ -1,6 +1,8 @@
 import datetime
+import json
 import time
 import random
+import base64
 
 import requests
 from jose import jws
@@ -8,12 +10,11 @@ from jose.constants import ALGORITHMS
 
 
 proxies = {
-    'https': 'http://CMg6mg:fHoqJx@185.168.248.24:8000'
+    'https': 'http://rp3R2E:fAfUYW@193.41.123.50:8000'
 }
 
 
 def authorization(key, email_bz):
-    print('1111111111111')
     dt = datetime.datetime.now()
     ts = time.mktime(dt.timetuple())
     claims = {
@@ -34,9 +35,41 @@ if __name__ == '__main__':
     email = 'skill834092@gmail.com'
 
     headers = authorization(key, email)
+    
+    # with open("my_image.png", "rb") as f:
+    #     png_encoded = base64.b64encode(f.read())
 
-    url = 'https://bitzlato.com/api/p2p/dsa/all'
+    # print(type(png_encoded))
+    # url = 'https://bitzlato.bz/api2/p2p/trade/17247229/chat/sendfile'
+    # data = {
+    #     'mime_type': 'image/png',
+    #     'name': 'Снимок экрана от 2022-09-06 15-41-47.png'
+    # }
+    # files = {'file': open('Снимок экрана от 2022-09-02 22-54-50.png', 'rb')}
+    
+    # r = requests.post(url, headers=headers, proxies=proxies, files=files)
+
+    # url = 'https://bitzlato.bz/api/p2p/trade/17248185'
+
+    # data = {
+
+    # }
+    # r = requests.get(url, headers=headers, proxies=proxies)
+
+    # url = 'https://bitzlato.bz/api/p2p/trade/17248661'
+
+    # r = requests.get(url, headers=headers, proxies=proxies)
+
+    # data = {
+    #     'type': 'cancel'
+    # }
+    url = 'https://bitzlato.com/api/p2p/trade/'
+
+    # r = requests.get(url, headers=headers, proxies=proxies)
+
+    url = 'https://bitzlato.bz/api/auth/whoami'
 
     r = requests.get(url, headers=headers, proxies=proxies)
 
-    print(r.text)
+
+    print(r.status_code, r.text)

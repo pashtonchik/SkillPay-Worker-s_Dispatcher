@@ -26,3 +26,6 @@ def parse_garantex():
         else:
             print(f'[ERROR Garantex]')
         time.sleep(15)
+
+if __name__ == '__main__':
+    parse_garantex()

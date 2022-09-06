@@ -28,8 +28,10 @@ def connector():
     while True:
         try:
             req_django = requests.get(URL_DJANGO + 'api/tasks').json()
+            print(req_django)
             for i in req_django:
-                req_flask = requests.post(URL_FLASK + 'check_adverts', json=i['user'])
+                req_check_adv = requests.post(URL_FLASK + 'check_adverts', json=i['user'])
+                req_chech_trades = requests.post(URL_FLASK + 'check_trades', json=i['user'])
         except Exception as e:
             print(e)
             pass

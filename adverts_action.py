@@ -26,10 +26,6 @@ def catch_error(func):
 
 
 
-proxies = {
-    'https': 'http://CMg6mg:fHoqJx@185.168.248.24:8000'
-}
-
 @catch_error
 def authorization(key, email_bz):
     dt = datetime.datetime.now()
@@ -46,13 +42,13 @@ def authorization(key, email_bz):
 
 
 @catch_error
-def get_amounts(min_amount, key, email, asset='BTC', fiat='RUB'):
+def get_amounts(min_amount, key, email, proxy, asset='BTC', fiat='RUB'):
     headers = authorization(key, email)
     url = f'https://bitzlato.bz/api2/p2p/exchange/dsa/?lang=ru&limit=10&skip=0&'\
     f'type=selling&currency={fiat}&cryptocurrency={asset}&' \
     f'isOwnerVerificated=false&isOwnerTrusted=false&isOwnerActive=false&'\
     f'amount={min_amount}&paymethod=443&amountType=currency&paymethodSlug=tinkoff'
-    r = requests.get(url, headers=headers, proxies=proxies)
+    r = requests.get(url, headers=headers, proxies=proxy)
     if (r.status_code == 200):
         return r.json()['data']
     else:
@@ -66,16 +62,16 @@ def parse_average_amount(amounts_info):
     return sum_amounts / 10
 
 @catch_error
-def get_all_adverts(key, email):
+def get_all_adverts(key, email, proxy):
     headers = authorization(key, email)
     # print(headers)
     url = 'https://bitzlato.com/api/p2p/dsa/all'
-    r = requests.get(url, headers=headers, proxies=proxies)
+    r = requests.get(url, headers=headers, proxies=proxy)
 
     # print(r.json())
     headers = authorization(key, email)
     url = 'https://bitzlato.com/api/auth/whoami'
-    user_id = requests.get(url, headers=headers, proxies=proxies).json()
+    user_id = requests.get(url, headers=headers, proxies=proxy).json()
     # print(user_id)
     if (r.status_code == 200):
         exists_advert_id = requests.get('http://194.58.92.160:8000/api/adverts/').json()
@@ -98,7 +94,7 @@ def get_all_adverts(key, email):
         return []
 
 @catch_error
-def edit_rate_value_advert(advert_id, average_price, key, email):
+def edit_rate_value_advert(advert_id, average_price, key, email, proxy):
     if (average_price != 0):
         url = f'https://bitzlato.com/api/p2p/dsa/{advert_id}'
         
@@ -107,7 +103,7 @@ def edit_rate_value_advert(advert_id, average_price, key, email):
         }
 
         headers = authorization(key, email)
-        r = requests.put(url, headers=headers, proxies=proxies, json=changes)
+        r = requests.put(url, headers=headers, proxies=proxy, json=changes)
         if (r.status_code == 200):
             advert = {
                 'advert_id' : advert_id
@@ -117,7 +113,7 @@ def edit_rate_value_advert(advert_id, average_price, key, email):
             price_garantex = requests.get(get_price_garantex).json()['btc-rub']
             
             headers = authorization(key, email)
-            get_adv = requests.get(url, headers=headers, proxies=proxies)
+            get_adv = requests.get(url, headers=headers, proxies=proxy)
             if (get_adv.status_code == 200):
                 advert_info = requests.post('http://194.58.92.160:8000/api/get_advert_info/', json=advert)
                 # print(advert_info)
@@ -131,11 +127,11 @@ def edit_rate_value_advert(advert_id, average_price, key, email):
                 
                         # print(float(price_garantex) * 1.002, float(get_adv.json()['rateValue']) * 0.995)
                 
-                        stop_advert(advert_id=advert_id, key=key, email=email)
+                        stop_advert(advert_id=advert_id, key=key, email=email, proxy=proxy)
                 
                     else:
                 
-                        run_advert(advert_id=advert_id, key=key, email=email)
+                        run_advert(advert_id=advert_id, key=key, email=email, proxy=proxy)
                 return r.json()
             else:
                 print('[ERROR] 131 line')
@@ -143,14 +139,14 @@ def edit_rate_value_advert(advert_id, average_price, key, email):
         return '[ERROR] 135 line'
 
 @catch_error
-def stop_advert(advert_id, key, email):
+def stop_advert(advert_id, key, email, proxy):
     headers = authorization(key, email)
     url = f'https://bitzlato.com/api/p2p/dsa/{advert_id}'
     
     changes = {
         'status': 'pause',
     }
-    r = requests.put(url, headers=headers, proxies=proxies, json=changes)
+    r = requests.put(url, headers=headers, proxies=proxy, json=changes)
     if (r.status_code == 200):
         return r.json()
     else:
@@ -158,28 +154,28 @@ def stop_advert(advert_id, key, email):
 
 
 @catch_error
-def run_advert(advert_id, key, email):
+def run_advert(advert_id, key, email, proxy):
     headers = authorization(key, email)
     url = f'https://bitzlato.com/api/p2p/dsa/{advert_id}'
     changes = {
         'status': 'active',
     }
 
-    r = requests.put(url, headers=headers, proxies=proxies, json=changes)
+    r = requests.put(url, headers=headers, proxies=proxy, json=changes)
     if (r.status_code == 200):
         return r.json() 
     else:
         print('[ERROR] 164 line')
 
 @catch_error
-def synchron(advert_id, key, email):
+def synchron(advert_id, key, email, proxy):
 
     url = f'https://bitzlato.com/api/p2p/dsa/{advert_id}'
     url_db = 'http://194.58.92.160:8000/api/update/advert/'
 
     headers = authorization(key, email)
     
-    get_ads = requests.get(url, headers=headers, proxies=proxies)
+    get_ads = requests.get(url, headers=headers, proxies=proxy)
     if (get_ads.status_code == 200):
         changes_db = {
             'advert_id': advert_id,
@@ -195,13 +191,13 @@ def synchron(advert_id, key, email):
 
 
 @catch_error
-def check_advert(key, bz_id, email):
-    for adv in get_all_adverts(key, email):
+def check_advert(key, bz_id, email, proxy):
+    for adv in get_all_adverts(key, email, proxy):
         limit_min = adv['minAmount']
         adv_id = adv['id']
-        average_amount = parse_average_amount(get_amounts(limit_min, key=key, email=email))
-        edit_rate_value_advert(adv_id, average_amount, key, email)
+        average_amount = parse_average_amount(get_amounts(limit_min, key=key, email=email, proxy=proxy))
+        edit_rate_value_advert(adv_id, average_amount, key, email, proxy=proxy)
         # print('[YES]')
-        synchron(adv_id, key, email)
+        synchron(adv_id, key, email, proxy)
         # print('ok')
         

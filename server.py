@@ -6,6 +6,7 @@ import requests
 import json
 import threading
 import adverts_action 
+import trades_action
 from parse_garantex import parse_garantex
 import connector
 
@@ -20,25 +21,29 @@ def add_worker():
     command = 'check_adverts'
     email = data['email']
     # print(data['key'])    
+    proxy = data['proxy']
+    print(proxy)
     if (command == 'check_adverts'):
-        th = threading.Thread(target=adverts_action.check_advert, args=(key, id, email))
+        th = threading.Thread(target=adverts_action.check_advert, args=(key, id, email, proxy))
         th.start()
     return "OK", 200, {'Content-Type': 'text/plain'}
 
 @app.route('/check_trades', methods=['POST', 'GET'])
 def check():
-    # data = request.get_json()
-    data = {
-        'account_id': '123',
-        'email': '', 
-        'account_key': {''},
-        'command' : 'check_adverts'
-    }
+    
+    data = request.get_json()
+    # print(data)
+    id = data['id']
+    key = data['key']
+    command = 'check_adverts'
+    email = data['email']
+    proxy = data['proxy']
+    # print(data['key'])    
+    if (command == 'check_adverts'):
+        th = threading.Thread(target=trades_action.check_trades, args=(key, id, email, proxy))
+        th.start()
+    return "OK", 200, {'Content-Type': 'text/plain'}
 
-    # if (data['command'] == 'check_trades'):
-    #     th = threading.Thread(target=adverts_action.check_advert, args=('', '123', 'skill834092@gmail.com'))
-    #     th.start()
-    return "1"
 
 
 
