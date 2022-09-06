@@ -72,11 +72,11 @@ def get_all_adverts(key, email):
     url = 'https://bitzlato.com/api/p2p/dsa/all'
     r = requests.get(url, headers=headers, proxies=proxies)
 
-    print(r.json())
+    # print(r.json())
     headers = authorization(key, email)
     url = 'https://bitzlato.com/api/auth/whoami'
     user_id = requests.get(url, headers=headers, proxies=proxies).json()
-    print(user_id)
+    # print(user_id)
     if (r.status_code == 200):
         exists_advert_id = requests.get('http://194.58.92.160:8000/api/adverts/').json()
         # print(exists_advert_id)
