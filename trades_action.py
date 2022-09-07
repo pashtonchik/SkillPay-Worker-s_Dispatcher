@@ -70,7 +70,7 @@ def synchron(trade_id, key, email, proxy):
     if (get_trade.status_code == 200):
         changes_db = {
             'id': trade_id,
-            'status' : get_trade.json()['status']
+            'status': get_trade.json()['status']
         }
         r_db = requests.post(url_db, json=changes_db)
     else:
