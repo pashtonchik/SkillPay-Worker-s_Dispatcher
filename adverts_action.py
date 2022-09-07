@@ -41,12 +41,12 @@ def authorization(key, email_bz):
 
 
 @catch_error
-def get_amounts(min_amount, key, email, proxy, asset='BTC', fiat='RUB'):
+def get_amounts(paymethod, min_amount, key, email, proxy, asset='BTC', fiat='RUB'):
     headers = authorization(key, email)
     url = f'https://bitzlato.bz/api2/p2p/exchange/dsa/?lang=ru&limit=10&skip=0&'\
     f'type=selling&currency={fiat}&cryptocurrency={asset}&' \
     f'isOwnerVerificated=false&isOwnerTrusted=false&isOwnerActive=false&'\
-    f'amount={min_amount}&paymethod=443&amountType=currency&paymethodSlug=tinkoff'
+    f'amount={min_amount}&paymethod={str(paymethod)}&amountType=currency'
     r = requests.get(url, headers=headers, proxies=proxy)
     if (r.status_code == 200):
         return r.json()['data']
@@ -191,7 +191,7 @@ def check_advert(key, bz_id, email, proxy):
     for adv in get_all_adverts(key, email, proxy):
         limit_min = adv['minAmount']
         adv_id = adv['id']
-        average_amount = parse_average_amount(get_amounts(limit_min, key=key, email=email, proxy=proxy))
+        average_amount = parse_average_amount(get_amounts(adv['paymethod'], limit_min, key=key, email=email, proxy=proxy))
         edit_rate_value_advert(adv_id, average_amount, key, email, proxy=proxy)
         synchron(adv_id, key, email, proxy)
         
