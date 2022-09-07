@@ -9,6 +9,7 @@ from jose.constants import ALGORITHMS
 url_error = 'http://194.58.92.160:8000/api/error/'
 import json
 
+
 def catch_error(func):
     def wrapper(*args, **kwargs):
         try:
@@ -23,7 +24,6 @@ def catch_error(func):
             r = requests.post(url_error, json=data)
             raise e
     return wrapper
-
 
 
 @catch_error
@@ -53,12 +53,14 @@ def get_amounts(min_amount, key, email, proxy, asset='BTC', fiat='RUB'):
     else:
         return []
 
+
 @catch_error
 def parse_average_amount(amounts_info):
     sum_amounts = 0
     for amount in amounts_info:
         sum_amounts += float(amount['rate'])
     return sum_amounts / 10
+
 
 @catch_error
 def get_all_adverts(key, email, proxy):
@@ -78,13 +80,16 @@ def get_all_adverts(key, email, proxy):
                     'amount': float(advert['rateValue']),
                     'limit_min': advert['minAmount'],
                     'limit_max': advert['maxAmount'],
+                    'paymethod': advert['paymethod'],
+                    'paymethod_description': advert['paymethod_description'],
                     'is_active': True if (advert['status'] == 'active') else False,
-                    'user' : user_id['userId']
+                    'user': user_id['userId']
                 }
                 r1 = requests.post('http://194.58.92.160:8000/api/create/advert/', json=add_advert)
         return r.json()
     else:
         return []
+
 
 @catch_error
 def edit_rate_value_advert(advert_id, average_price, key, email, proxy):
@@ -129,6 +134,7 @@ def edit_rate_value_advert(advert_id, average_price, key, email, proxy):
     else:
         return '[ERROR] 135 line'
 
+
 @catch_error
 def stop_advert(advert_id, key, email, proxy):
     headers = authorization(key, email)
@@ -158,6 +164,7 @@ def run_advert(advert_id, key, email, proxy):
     else:
         print('[ERROR] 164 line')
 
+
 @catch_error
 def synchron(advert_id, key, email, proxy):
 
@@ -176,9 +183,7 @@ def synchron(advert_id, key, email, proxy):
         
         r_db = requests.post(url_db, json=changes_db)
     else:
-        print ('[ERROR] 179 line')
-
-    
+        print('[ERROR] 179 line')
 
 
 @catch_error
