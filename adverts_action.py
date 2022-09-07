@@ -118,7 +118,7 @@ def edit_rate_value_advert(advert_id, average_price, key, email, proxy):
                 
                     percent = float(advert_info.json()['revenue_percentage'])
                 
-                    side_percent = ( (float(price_garantex) * 1.002) / (float(get_adv.json()['rateValue']) * 0.995)- 1) * 100
+                    side_percent = ( (float(price_garantex) * 0.998) / (float(get_adv.json()['rateValue']) * 1.005)- 1) * 100
                 
                     if side_percent < percent:
                 

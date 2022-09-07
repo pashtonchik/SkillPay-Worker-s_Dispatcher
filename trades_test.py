@@ -34,9 +34,9 @@ if __name__ == '__main__':
     email = 'alex@lbnv.net'
     headers = authorization(key, email)
     data = {
-        'advertId' : '657735',
+        'advertId' : '654602',
         'amount' : '1000',
-        'rate' : '1131601',
+        'rate' : '1147187',
         'amountType' : 'RUB',
         'counterDetails' : 'Оплата на номер 939393993 лаллала'
     }
