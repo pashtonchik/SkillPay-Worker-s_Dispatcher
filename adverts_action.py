@@ -43,11 +43,13 @@ def authorization(key, email_bz):
 @catch_error
 def get_amounts(paymethod, min_amount, key, email, proxy, asset='BTC', fiat='RUB'):
     headers = authorization(key, email)
-    url = f'https://bitzlato.bz/api2/p2p/exchange/dsa/?lang=ru&limit=10&skip=0&'\
+    url = f'https://bitzlato.bz/api/p2p/exchange/dsa/?lang=ru&limit=10&skip=0&'\
     f'type=selling&currency={fiat}&cryptocurrency={asset}&' \
     f'isOwnerVerificated=false&isOwnerTrusted=false&isOwnerActive=false&'\
     f'amount={min_amount}&paymethod={str(paymethod)}&amountType=currency'
+    # print(url)
     r = requests.get(url, headers=headers, proxies=proxy)
+    # print(r.status_code, r.text)
     if (r.status_code == 200):
         return r.json()['data']
     else:
@@ -56,6 +58,7 @@ def get_amounts(paymethod, min_amount, key, email, proxy, asset='BTC', fiat='RUB
 
 @catch_error
 def parse_average_amount(amounts_info):
+    print(amounts_info)
     sum_amounts = 0
     for amount in amounts_info:
         sum_amounts += float(amount['rate'])
