@@ -58,7 +58,7 @@ def get_amounts(paymethod, min_amount, key, email, proxy, asset='BTC', fiat='RUB
 
 @catch_error
 def parse_average_amount(amounts_info):
-    print(amounts_info)
+    # print(amounts_info)
     sum_amounts = 0
     for amount in amounts_info:
         sum_amounts += float(amount['rate'])
