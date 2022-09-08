@@ -97,7 +97,11 @@ def check_trades(key, bz_id, email, proxy):
             status = adv_info['status']
             partner = adv_info['partner']
             exists_trades = requests.get('http://194.58.92.160:8000/api/get/trades/').json()
-            if not str(id) in exists_trades:
+            all_ids = []
+            for i in exists_trades:
+                all_ids.append(i['id'])
+            if not str(id) in all_ids:
+                print(id)
                 data = {
                     'id' : id,
                     'bzuser_id': bz_id,

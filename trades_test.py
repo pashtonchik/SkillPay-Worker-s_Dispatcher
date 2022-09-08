@@ -36,7 +36,7 @@ if __name__ == '__main__':
     data = {
         'advertId' : '654602',
         'amount' : '1000',
-        'rate' : '1147187',
+        'rate' : '1197339',
         'amountType' : 'RUB',
         'counterDetails' : 'Оплата на номер 939393993 лаллала'
     }
