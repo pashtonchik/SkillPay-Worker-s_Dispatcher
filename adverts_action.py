@@ -192,9 +192,11 @@ def synchron(advert_id, key, email, proxy):
 @catch_error
 def check_advert(key, bz_id, email, proxy):
     for adv in get_all_adverts(key, email, proxy):
-        limit_min = adv['minAmount']
+        req_db = requests.get(f'''http://194.58.92.160:8000/api/get/advert/{adv['id']}/''').json()
+        limit_min = req_db['limit_min']
+        paymethod = req_db['paymethod']
         adv_id = adv['id']
-        average_amount = parse_average_amount(get_amounts(adv['paymethod'], limit_min, key=key, email=email, proxy=proxy))
+        average_amount = parse_average_amount(get_amounts(paymethod, limit_min, key=key, email=email, proxy=proxy))
         edit_rate_value_advert(adv_id, average_amount, key, email, proxy=proxy)
         synchron(adv_id, key, email, proxy)
         
