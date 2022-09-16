@@ -6,8 +6,8 @@ import requests
 from jose import jws
 from jose.constants import ALGORITHMS
 
-url_error = 'http://194.58.92.160:8001/api/error/'
-import json
+
+URL_DJANGO = 'http://194.58.92.160:8001/'
 
 
 def catch_error(func):
@@ -21,7 +21,7 @@ def catch_error(func):
                 'target': func.__name__,
                 'text': str(e),
             }
-            r = requests.post(url_error, json=data)
+            r = requests.post(URL_DJANGO + 'api/error/', json=data)
             raise e
     return wrapper
 
@@ -47,10 +47,8 @@ def get_amounts(paymethod, min_amount, key, email, proxy, asset='BTC', fiat='RUB
     f'type=selling&currency={fiat}&cryptocurrency={asset}&' \
     f'isOwnerVerificated=false&isOwnerTrusted=false&isOwnerActive=false&'\
     f'amount={min_amount}&paymethod={str(paymethod)}&amountType=currency'
-    # print(url)
     r = requests.get(url, headers=headers, proxies=proxy)
-    # print(r.status_code, r.text)
-    if (r.status_code == 200):
+    if r.status_code == 200:
         return r.json()['data']
     else:
         return []
@@ -58,11 +56,20 @@ def get_amounts(paymethod, min_amount, key, email, proxy, asset='BTC', fiat='RUB
 
 @catch_error
 def parse_average_amount(amounts_info):
-    # print(amounts_info)
     sum_amounts = 0
     for amount in amounts_info:
         sum_amounts += float(amount['rate'])
     return sum_amounts / 10
+
+
+@catch_error
+def get_all_scripts():
+    req_scripts = requests.get(URL_DJANGO + 'api/get/scripts/')
+    if req_scripts.status_code == 200:
+        data_scripts = req_scripts.json()
+    else:
+        data_scripts = []
+    return data_scripts
 
 
 @catch_error
@@ -74,8 +81,8 @@ def get_all_adverts(key, email, proxy):
     headers = authorization(key, email)
     url = 'https://bitzlato.com/api/auth/whoami'
     user_id = requests.get(url, headers=headers, proxies=proxy).json()
-    if (r.status_code == 200):
-        exists_advert_id = requests.get('http://194.58.92.160:8001/api/adverts/').json()
+    if r.status_code == 200:
+        exists_advert_id = requests.get(URL_DJANGO + 'api/adverts/').json()
         for advert in r.json():
             if not str(advert['id']) in exists_advert_id:
                 add_advert = {
@@ -105,7 +112,7 @@ def edit_rate_value_advert(advert_id, average_price, key, email, proxy):
 
         headers = authorization(key, email)
         r = requests.put(url, headers=headers, proxies=proxy, json=changes)
-        if (r.status_code == 200):
+        if r.status_code == 200:
             advert = {
                 'advert_id' : advert_id
             }
@@ -115,17 +122,16 @@ def edit_rate_value_advert(advert_id, average_price, key, email, proxy):
             
             headers = authorization(key, email)
             get_adv = requests.get(url, headers=headers, proxies=proxy)
-            if (get_adv.status_code == 200):
+            if get_adv.status_code == 200:
                 advert_info = requests.post('http://194.58.92.160:8001/api/get_advert_info/', json=advert)
-                if (advert_info.json()['revenue_percentage'] != None):
+                if advert_info.json()['revenue_percentage'] != None:
                 
                     percent = float(advert_info.json()['revenue_percentage'])
                 
                     side_percent = ( (float(price_garantex) * 0.998) / (float(get_adv.json()['rateValue']) * 1.005)- 1) * 100
                 
                     if side_percent < percent:
-                
-                
+
                         stop_advert(advert_id=advert_id, key=key, email=email, proxy=proxy)
                 
                     else:
@@ -147,7 +153,7 @@ def stop_advert(advert_id, key, email, proxy):
         'status': 'pause',
     }
     r = requests.put(url, headers=headers, proxies=proxy, json=changes)
-    if (r.status_code == 200):
+    if r.status_code == 200:
         return r.json()
     else:
         print('[ERROR] 149 line')
@@ -162,7 +168,7 @@ def run_advert(advert_id, key, email, proxy):
     }
 
     r = requests.put(url, headers=headers, proxies=proxy, json=changes)
-    if (r.status_code == 200):
+    if r.status_code == 200:
         return r.json() 
     else:
         print('[ERROR] 164 line')
@@ -177,7 +183,7 @@ def synchron(advert_id, key, email, proxy):
     headers = authorization(key, email)
     
     get_ads = requests.get(url, headers=headers, proxies=proxy)
-    if (get_ads.status_code == 200):
+    if get_ads.status_code == 200:
         changes_db = {
             'advert_id': advert_id,
             'amount': get_ads.json()['rateValue'],
