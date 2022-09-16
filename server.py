@@ -52,6 +52,6 @@ def check():
 if __name__ == '__main__':
     threading.Thread(target=parse_garantex, args=()).start()
     threading.Thread(target=connector.connector, args=()).start()
-    app.run()
+    app.run(host="0.0.0.0", port=int("80"))
    
 
