@@ -175,34 +175,85 @@ def run_advert(advert_id, key, email, proxy):
 
 
 @catch_error
-def synchron(advert_id, key, email, proxy):
+def stop_script(script_id):
+    changes = {
+        'is_active': False,
+    }
 
-    url = f'https://bitzlato.com/api/p2p/dsa/{advert_id}'
-    url_db = 'http://194.58.92.160:8001/api/update/advert/'
-
-    headers = authorization(key, email)
-    
-    get_ads = requests.get(url, headers=headers, proxies=proxy)
-    if get_ads.status_code == 200:
-        changes_db = {
-            'advert_id': advert_id,
-            'amount': get_ads.json()['rateValue'],
-            'is_active': True if get_ads.json()['status'] == 'active' else False    
-        }
-        
-        r_db = requests.post(url_db, json=changes_db)
+    r = requests.post(URL_DJANGO + f'api/update/script/{script_id}', json=changes)
+    if r.status_code == 200:
+        return True
     else:
-        print('[ERROR] 179 line')
+        print('[ERROR] 164 line')
 
 
 @catch_error
-def check_advert(key, bz_id, email, proxy):
-    for adv in get_all_adverts(key, email, proxy):
-        req_db = requests.get(f'''http://194.58.92.160:8001/api/get/advert/{adv['id']}/''').json()
-        limit_min = req_db['limit_min']
-        paymethod = req_db['paymethod']
-        adv_id = adv['id']
+def start_script(script_id):
+    changes = {
+        'is_active': True,
+    }
+
+    r = requests.post(URL_DJANGO + f'api/update/script/{script_id}', json=changes)
+    if r.status_code == 200:
+        return True
+    else:
+        print('[ERROR] 164 line')
+
+
+@catch_error
+def edit_amount_script(script_id, average_amount):
+    changes = {
+        'amount': average_amount,
+    }
+
+    r = requests.post(URL_DJANGO + f'api/update/script/{script_id}', json=changes)
+    if r.status_code == 200:
+        return r.json()
+    else:
+        return {}
+
+
+@catch_error
+def synchron(advert_id, key, email, proxy):
+    url = f'https://bitzlato.com/api/p2p/dsa/{advert_id}'
+    url_db = f'http://194.58.92.160:8001/api/get_advert_info/{advert_id}'
+
+    advert_info_db = requests.get(url_db).json()
+
+    changes_bz = {
+        'rateValue': advert_info_db['amount'],
+        'status': 'active' if advert_info_db['is_active'] else 'pause',
+    }
+
+    headers = authorization(key, email)
+    r = requests.put(url, headers=headers, proxies=proxy, json=changes_bz)
+
+
+
+# @catch_error
+# def check_advert(key, bz_id, email, proxy):
+#     for adv in get_all_adverts(key, email, proxy):
+#         req_db = requests.get(f'''http://194.58.92.160:8001/api/get/advert/{adv['id']}/''').json()
+#         limit_min = req_db['limit_min']
+#         paymethod = req_db['paymethod']
+#         adv_id = adv['id']
+#         average_amount = parse_average_amount(get_amounts(paymethod, limit_min, key=key, email=email, proxy=proxy))
+#         edit_rate_value_advert(adv_id, average_amount, key, email, proxy=proxy)
+#         synchron(adv_id, key, email, proxy)
+
+
+@catch_error
+def check_scripts(key, bz_id, email, proxy):
+    for script in get_all_scripts():
+        print(script)
+        limit_min = script['script']['amount']
+        paymethod = script['script']['paymethod']
         average_amount = parse_average_amount(get_amounts(paymethod, limit_min, key=key, email=email, proxy=proxy))
-        edit_rate_value_advert(adv_id, average_amount, key, email, proxy=proxy)
-        synchron(adv_id, key, email, proxy)
+        updated_script = edit_amount_script(script['script']['id'], average_amount)
+        if updated_script['revenue_percentage'] > updated_script['actual_percentage']:
+            stop_script(updated_script['id'])
+        else:
+            start_script(updated_script['id'])
+        for advert_id in script['adverts']:
+            synchron(advert_id, key, email, proxy)
         

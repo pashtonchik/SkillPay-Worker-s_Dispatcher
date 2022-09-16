@@ -24,7 +24,7 @@ def add_worker():
     proxy = data['proxy']
     # print(proxy)
     if (command == 'check_adverts'):
-        th = threading.Thread(target=adverts_action.check_advert, args=(key, id, email, proxy))
+        th = threading.Thread(target=adverts_action.check_scripts, args=(key, id, email, proxy))
         th.start()
     return "OK", 200, {'Content-Type': 'text/plain'}
 

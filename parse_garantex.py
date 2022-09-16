@@ -25,6 +25,7 @@ def parse_garantex():
                 print(f'[POLLING]')
         else:
             print(f'[ERROR Garantex]')
+            continue
         time.sleep(15)
 
 if __name__ == '__main__':
