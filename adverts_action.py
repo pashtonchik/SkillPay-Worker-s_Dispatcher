@@ -6,7 +6,7 @@ import requests
 from jose import jws
 from jose.constants import ALGORITHMS
 
-url_error = 'http://194.58.92.160:8000/api/error/'
+url_error = 'http://194.58.92.160:8001/api/error/'
 import json
 
 
@@ -75,7 +75,7 @@ def get_all_adverts(key, email, proxy):
     url = 'https://bitzlato.com/api/auth/whoami'
     user_id = requests.get(url, headers=headers, proxies=proxy).json()
     if (r.status_code == 200):
-        exists_advert_id = requests.get('http://194.58.92.160:8000/api/adverts/').json()
+        exists_advert_id = requests.get('http://194.58.92.160:8001/api/adverts/').json()
         for advert in r.json():
             if not str(advert['id']) in exists_advert_id:
                 add_advert = {
@@ -88,7 +88,7 @@ def get_all_adverts(key, email, proxy):
                     'is_active': True if (advert['status'] == 'active') else False,
                     'user': user_id['userId']
                 }
-                r1 = requests.post('http://194.58.92.160:8000/api/create/advert/', json=add_advert)
+                r1 = requests.post('http://194.58.92.160:8001/api/create/advert/', json=add_advert)
         return r.json()
     else:
         return []
@@ -110,13 +110,13 @@ def edit_rate_value_advert(advert_id, average_price, key, email, proxy):
                 'advert_id' : advert_id
             }
 
-            get_price_garantex = 'http://194.58.92.160:8000/api/get_exchange_garantex/'
+            get_price_garantex = 'http://194.58.92.160:8001/api/get_exchange_garantex/'
             price_garantex = requests.get(get_price_garantex).json()['btc-rub']
             
             headers = authorization(key, email)
             get_adv = requests.get(url, headers=headers, proxies=proxy)
             if (get_adv.status_code == 200):
-                advert_info = requests.post('http://194.58.92.160:8000/api/get_advert_info/', json=advert)
+                advert_info = requests.post('http://194.58.92.160:8001/api/get_advert_info/', json=advert)
                 if (advert_info.json()['revenue_percentage'] != None):
                 
                     percent = float(advert_info.json()['revenue_percentage'])
@@ -172,7 +172,7 @@ def run_advert(advert_id, key, email, proxy):
 def synchron(advert_id, key, email, proxy):
 
     url = f'https://bitzlato.com/api/p2p/dsa/{advert_id}'
-    url_db = 'http://194.58.92.160:8000/api/update/advert/'
+    url_db = 'http://194.58.92.160:8001/api/update/advert/'
 
     headers = authorization(key, email)
     
@@ -192,7 +192,7 @@ def synchron(advert_id, key, email, proxy):
 @catch_error
 def check_advert(key, bz_id, email, proxy):
     for adv in get_all_adverts(key, email, proxy):
-        req_db = requests.get(f'''http://194.58.92.160:8000/api/get/advert/{adv['id']}/''').json()
+        req_db = requests.get(f'''http://194.58.92.160:8001/api/get/advert/{adv['id']}/''').json()
         limit_min = req_db['limit_min']
         paymethod = req_db['paymethod']
         adv_id = adv['id']

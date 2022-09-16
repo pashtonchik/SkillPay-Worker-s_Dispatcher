@@ -8,7 +8,7 @@ import requests
 from jose import jws
 from jose.constants import ALGORITHMS
 
-url_error = 'http://194.58.92.160:8000/api/error/'
+url_error = 'http://194.58.92.160:8001/api/error/'
 import json
 
 def catch_error(func):
@@ -60,7 +60,7 @@ def get_all_trades(key, email):
 def synchron(trade_id, key, email, proxy):
 
     url = f'https://bitzlato.bz/api/p2p/trade/{trade_id}'
-    url_db = 'http://194.58.92.160:8000/api/update/trade/'
+    url_db = 'http://194.58.92.160:8001/api/update/trade/'
 
     headers = authorization(key, email)
     
@@ -96,7 +96,7 @@ def check_trades(key, bz_id, email, proxy):
             counterDetails = adv_info['counterDetails']
             status = adv_info['status']
             partner = adv_info['partner']
-            exists_trades = requests.get('http://194.58.92.160:8000/api/get/trades/').json()
+            exists_trades = requests.get('http://194.58.92.160:8001/api/get/trades/').json()
             all_ids = []
             for i in exists_trades:
                 all_ids.append(i['id'])
@@ -115,5 +115,5 @@ def check_trades(key, bz_id, email, proxy):
                     'status':status,
                     'partner' : partner
                 }
-                add_trade = requests.post('http://194.58.92.160:8000/api/create/trade/', json=data)
+                add_trade = requests.post('http://194.58.92.160:8001/api/create/trade/', json=data)
         synchron(email=email, key=key, trade_id=id, proxy=proxy)

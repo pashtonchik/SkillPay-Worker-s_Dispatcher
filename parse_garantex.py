@@ -18,7 +18,7 @@ def parse_garantex():
                 'price': actually_price,
             }
 
-            server_resp = requests.post('http://194.58.92.160:8000/api/update/garantex', json=exchange_info)
+            server_resp = requests.post('http://194.58.92.160:8001/api/update/garantex', json=exchange_info)
             if (server_resp.status_code != 200):
                 print(f'[ERROR] {server_resp.status_code}')
             else:
