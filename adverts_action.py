@@ -180,7 +180,7 @@ def stop_script(script_id):
         'is_active': False,
     }
 
-    r = requests.post(URL_DJANGO + f'api/update/script/{script_id}', json=changes)
+    r = requests.post(URL_DJANGO + f'api/update/script/{script_id}/', json=changes)
     if r.status_code == 200:
         return True
     else:
@@ -193,7 +193,7 @@ def start_script(script_id):
         'is_active': True,
     }
 
-    r = requests.post(URL_DJANGO + f'api/update/script/{script_id}', json=changes)
+    r = requests.post(URL_DJANGO + f'api/update/script/{script_id}/', json=changes)
     if r.status_code == 200:
         return True
     else:
@@ -205,8 +205,8 @@ def edit_amount_script(script_id, average_amount):
     changes = {
         'amount': average_amount,
     }
-
-    r = requests.post(URL_DJANGO + f'api/update/script/{script_id}', json=changes)
+    r = requests.post(URL_DJANGO + f'api/update/script/{script_id}/', json=changes)
+    print(r.status_code)
     if r.status_code == 200:
         return r.json()
     else:
@@ -216,7 +216,7 @@ def edit_amount_script(script_id, average_amount):
 @catch_error
 def synchron(advert_id, key, email, proxy):
     url = f'https://bitzlato.com/api/p2p/dsa/{advert_id}'
-    url_db = f'http://194.58.92.160:8001/api/get_advert_info/{advert_id}'
+    url_db = f'http://194.58.92.160:8001/api/get/advert_info/{advert_id}'
 
     advert_info_db = requests.get(url_db).json()
 
@@ -245,11 +245,11 @@ def synchron(advert_id, key, email, proxy):
 @catch_error
 def check_scripts(key, bz_id, email, proxy):
     for script in get_all_scripts():
-        print(script)
         limit_min = script['script']['amount']
         paymethod = script['script']['paymethod']
         average_amount = parse_average_amount(get_amounts(paymethod, limit_min, key=key, email=email, proxy=proxy))
         updated_script = edit_amount_script(script['script']['id'], average_amount)
+        print(updated_script)
         if updated_script['revenue_percentage'] > updated_script['actual_percentage']:
             stop_script(updated_script['id'])
         else:
