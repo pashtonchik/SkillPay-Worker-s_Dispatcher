@@ -41,13 +41,17 @@ def authorization(key, email_bz):
 
 
 @catch_error
-def get_amounts(paymethod, min_amount, key, email, proxy, asset='BTC', fiat='RUB'):
+def get_amounts(paymethod, min_amount, down, up, key, email, proxy, asset='BTC', fiat='RUB'):
     headers = authorization(key, email)
-    url = f'https://bitzlato.bz/api/p2p/exchange/dsa/?lang=ru&limit=10&skip=0&'\
+    limit = up - down + 1
+    skip = down - 1
+    url = f'https://bitzlato.bz/api/p2p/exchange/dsa/?lang=ru&limit={limit}&skip={skip}&'\
     f'type=selling&currency={fiat}&cryptocurrency={asset}&' \
     f'isOwnerVerificated=false&isOwnerTrusted=false&isOwnerActive=false&'\
     f'amount={min_amount}&paymethod={str(paymethod)}&amountType=currency'
+    print(min_amount, paymethod)
     r = requests.get(url, headers=headers, proxies=proxy)
+    print('Ответ от БЗ парс объяв ', r.text)
     if r.status_code == 200:
         return r.json()['data']
     else:
@@ -55,11 +59,11 @@ def get_amounts(paymethod, min_amount, key, email, proxy, asset='BTC', fiat='RUB
 
 
 @catch_error
-def parse_average_amount(amounts_info):
+def parse_average_amount(amounts_info, count):
     sum_amounts = 0
     for amount in amounts_info:
         sum_amounts += float(amount['rate'])
-    return sum_amounts / 10
+    return sum_amounts / count
 
 
 @catch_error
@@ -203,10 +207,9 @@ def start_script(script_id):
 @catch_error
 def edit_amount_script(script_id, average_amount):
     changes = {
-        'amount': average_amount,
+        'average_price': average_amount,
     }
     r = requests.post(URL_DJANGO + f'api/update/script/{script_id}/', json=changes)
-    print(r.status_code)
     if r.status_code == 200:
         return r.json()
     else:
@@ -227,6 +230,7 @@ def synchron(advert_id, key, email, proxy):
 
     headers = authorization(key, email)
     r = requests.put(url, headers=headers, proxies=proxy, json=changes_bz)
+    print('Ответ с БЗ для изменения объяв ', r.text)
 
 
 
@@ -248,7 +252,11 @@ def check_scripts(key, bz_id, email, proxy):
     for script in get_all_scripts():
         limit_min = script['script']['amount']
         paymethod = script['script']['paymethod']
-        average_amount = parse_average_amount(get_amounts(paymethod, limit_min, key=key, email=email, proxy=proxy))
+        up = script['script']['upper_target']
+        down = script['script']['bottom_target']
+        count = up - down + 1
+        average_amount = parse_average_amount(get_amounts(paymethod, limit_min,
+                                                          key=key, email=email, proxy=proxy, up=up, down=down), count)
         updated_script = edit_amount_script(script['script']['id'], average_amount)
         print(updated_script)
         if updated_script['revenue_percentage'] > updated_script['actual_percentage']:
