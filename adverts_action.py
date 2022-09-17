@@ -22,7 +22,7 @@ def catch_error(func):
                 'text': str(e),
             }
             r = requests.post(URL_DJANGO + 'api/error/', json=data)
-            raise e
+            pass
     return wrapper
 
 
@@ -222,7 +222,6 @@ def synchron(advert_id, key, email, proxy):
     url_db = f'http://194.58.92.160:8001/api/get/advert_info/{advert_id}'
 
     advert_info_db = requests.get(url_db).json()
-
     changes_bz = {
         'rateValue': advert_info_db['amount'],
         'status': 'active' if advert_info_db['is_active'] else 'pause',
