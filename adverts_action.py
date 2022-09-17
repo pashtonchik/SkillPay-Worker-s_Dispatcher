@@ -49,9 +49,9 @@ def get_amounts(paymethod, min_amount, down, up, key, email, proxy, asset='BTC',
     f'type=selling&currency={fiat}&cryptocurrency={asset}&' \
     f'isOwnerVerificated=false&isOwnerTrusted=false&isOwnerActive=false&'\
     f'amount={min_amount}&paymethod={str(paymethod)}&amountType=currency'
-    print(min_amount, paymethod)
     r = requests.get(url, headers=headers, proxies=proxy)
-    print('Ответ от БЗ парс объяв ', r.text)
+    if str(paymethod) == 3547:
+        print('Ответ от БЗ парс объяв ', r.text)
     if r.status_code == 200:
         return r.json()['data']
     else:
@@ -218,6 +218,7 @@ def edit_amount_script(script_id, average_amount):
 
 @catch_error
 def synchron(advert_id, key, email, proxy):
+    print(1)
     url = f'https://bitzlato.com/api/p2p/dsa/{advert_id}'
     url_db = f'http://194.58.92.160:8001/api/get/advert_info/{advert_id}'
 
@@ -229,6 +230,7 @@ def synchron(advert_id, key, email, proxy):
 
     headers = authorization(key, email)
     r = requests.put(url, headers=headers, proxies=proxy, json=changes_bz)
+
     print('Ответ с БЗ для изменения объяв ', r.text)
 
 
@@ -257,7 +259,6 @@ def check_scripts(key, bz_id, email, proxy):
         average_amount = parse_average_amount(get_amounts(paymethod, limit_min,
                                                           key=key, email=email, proxy=proxy, up=up, down=down), count)
         updated_script = edit_amount_script(script['script']['id'], average_amount)
-        print(updated_script)
         if updated_script['revenue_percentage'] > updated_script['actual_percentage']:
             stop_script(updated_script['id'])
         else:
