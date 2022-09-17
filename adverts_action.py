@@ -244,6 +244,7 @@ def synchron(advert_id, key, email, proxy):
 
 @catch_error
 def check_scripts(key, bz_id, email, proxy):
+    all_adverts = get_all_adverts(key, email, proxy)
     for script in get_all_scripts():
         limit_min = script['script']['amount']
         paymethod = script['script']['paymethod']
