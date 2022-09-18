@@ -50,8 +50,6 @@ def get_amounts(paymethod, min_amount, down, up, key, email, proxy, asset='BTC',
     f'isOwnerVerificated=false&isOwnerTrusted=false&isOwnerActive=false&'\
     f'amount={min_amount}&paymethod={str(paymethod)}&amountType=currency'
     r = requests.get(url, headers=headers, proxies=proxy)
-    # print(min_amount, paymethod)
-    # print('Ответ от БЗ парс объяв ', r.text)
     if r.status_code == 200:
         return r.json()['data']
     else:
@@ -60,9 +58,10 @@ def get_amounts(paymethod, min_amount, down, up, key, email, proxy, asset='BTC',
 
 @catch_error
 def parse_average_amount(amounts_info, count):
-    sum_amounts = 0
-    for amount in amounts_info:
-        sum_amounts += float(amount['rate'])
+    if amounts_info:
+        sum_amounts = 0
+        for amount in amounts_info:
+            sum_amounts += float(amount['rate'])
     return sum_amounts / count
 
 
@@ -266,11 +265,11 @@ def check_scripts(key, bz_id, email, proxy):
             start_script(updated_script['id'])
         for advert_id in script['adverts']:
             synchron(advert_id, key, email, proxy)   
-        # if average_amount == 0:
-        #     updated_script = edit_amount_script(script['script']['id'], average_amount)
-        #     if updated_script['revenue_percentage'] > updated_script['actual_percentage']:
-        #         stop_script(updated_script['id'])
-        #     else:
-        #         start_script(updated_script['id'])
-        #     for advert_id in script['adverts']:
-        #         synchron(advert_id, key, email, proxy)
+        if average_amount == 0:
+            try_updated_script = edit_amount_script(script['script']['id'], average_amount)
+            if try_updated_script['revenue_percentage'] > try_updated_script['actual_percentage']:
+                stop_script(try_updated_script['id'])
+            else:
+                start_script(try_updated_script['id'])
+            for advert_id in script['adverts']:
+                synchron(advert_id, key, email, proxy)
