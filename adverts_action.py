@@ -51,7 +51,6 @@ def get_amounts(paymethod, min_amount, down, up, key, email, proxy, asset='BTC',
     f'isOwnerVerificated=false&isOwnerTrusted=false&isOwnerActive=false&'\
     f'amount={min_amount}&paymethod={str(paymethod)}&amountType=currency'
     r = requests.get(url, headers=headers, proxies=proxy)
-    # print(r.text)
     if r.status_code == 200:
         return r.json()['data']
     else:
@@ -100,8 +99,6 @@ def get_all_adverts(key, email, proxy):
                     'user': user_id['userId']
                 }
                 r1 = requests.post(URL_DJANGO + 'api/create/advert/', json=add_advert)
-
-                print(r1.text)
         return r.json()
     else:
         return []
@@ -233,14 +230,11 @@ def synchron(advert_id, key, email, proxy):
     headers = authorization(key, email)
     r = requests.put(url, headers=headers, proxies=proxy, json=changes_bz)
 
-    # print('Ответ с БЗ для изменения объяв ', r.text)
-
 
 
 @catch_error
 def check_scripts(key, bz_id, email, proxy):
     all_adverts = get_all_adverts(key, email, proxy)
-    # print(email, key)
     for script in get_all_scripts():
         limit_min = script['script']['amount']
         paymethod = script['script']['paymethod']
