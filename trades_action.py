@@ -76,11 +76,11 @@ def synchron(trade_id, key, email, proxy):
         date_closed = 0 
         for i in get_trade.json()['history']:
             if i['status'] == 'trade_created':
-                date_created = datetime.datetime.fromtimestamp(i['date'] / 1000)
+                date_created = i['date'] / 1000
                 logger.debug(f"target: synchron; action: date_created = {date_created}")
                 
             elif i['status'] == 'confirm_payment':
-                date_closed = datetime.datetime.fromtimestamp(i['date'] / 1000)
+                date_closed = i['date'] / 1000
                 logger.debug(f"target: synchron; action: date_closed = {date_created}")
         changes_db = {
             'id': trade_id,
@@ -112,9 +112,9 @@ def check_trades(key, bz_id, email, proxy):
             adv_info = adv_requests.json()
             for i in adv_info['history']:
                 if i['status'] == 'trade_created':
-                    date_created = datetime.datetime.fromtimestamp(i['date'] / 1000)
+                    date_created = i['date'] / 1000
                 elif i['status'] == 'confirm_payment':
-                    date_closed = datetime.datetime.fromtimestamp(i['date'] / 1000)
+                    date_closed = i['date'] / 1000
             cryptocurrency = adv['cryptocurrency']['code']
             cryptocurrency_amount = adv['cryptocurrency']['amount']
             currency = adv['currency']['code']
