@@ -50,10 +50,7 @@ def get_amounts(paymethod, min_amount, down, up, key, email, proxy, asset='BTC',
     f'isOwnerVerificated=false&isOwnerTrusted=false&isOwnerActive=false&'\
     f'amount={min_amount}&paymethod={str(paymethod)}&amountType=currency'
     r = requests.get(url, headers=headers, proxies=proxy)
-    if str(paymethod) == 3547:
-        print('Ответ от БЗ парс объяв ', r.text)
     # print(min_amount, paymethod)
-    r = requests.get(url, headers=headers, proxies=proxy)
     # print('Ответ от БЗ парс объяв ', r.text)
     if r.status_code == 200:
         return r.json()['data']
@@ -90,8 +87,6 @@ def get_all_adverts(key, email, proxy):
     if r.status_code == 200:
         exists_advert_id = requests.get(URL_DJANGO + 'api/adverts/').json()
         for advert in r.json():
-
-            print(exists_advert_id)
             if not str(advert['id']) in exists_advert_id:
                 add_advert = {
                     'advert_id': advert['id'],
@@ -104,7 +99,6 @@ def get_all_adverts(key, email, proxy):
                     'user': user_id['userId']
                 }
                 r1 = requests.post('http://194.58.92.160:8001/api/create/advert/', json=add_advert)
-                print(r1.status_code)
         return r.json()
     else:
         return []
@@ -271,11 +265,11 @@ def check_scripts(key, bz_id, email, proxy):
             start_script(updated_script['id'])
         for advert_id in script['adverts']:
             synchron(advert_id, key, email, proxy)   
-        if (average_amount == 0):
-            updated_script = edit_amount_script(script['script']['id'], average_amount)
-            if updated_script['revenue_percentage'] > updated_script['actual_percentage']:
-                stop_script(updated_script['id'])
-            else:
-                start_script(updated_script['id'])
-            for advert_id in script['adverts']:
-                synchron(advert_id, key, email, proxy)
+        # if average_amount == 0:
+        #     updated_script = edit_amount_script(script['script']['id'], average_amount)
+        #     if updated_script['revenue_percentage'] > updated_script['actual_percentage']:
+        #         stop_script(updated_script['id'])
+        #     else:
+        #         start_script(updated_script['id'])
+        #     for advert_id in script['adverts']:
+        #         synchron(advert_id, key, email, proxy)
