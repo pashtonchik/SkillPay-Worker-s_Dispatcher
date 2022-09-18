@@ -50,6 +50,7 @@ def get_amounts(paymethod, min_amount, down, up, key, email, proxy, asset='BTC',
     f'isOwnerVerificated=false&isOwnerTrusted=false&isOwnerActive=false&'\
     f'amount={min_amount}&paymethod={str(paymethod)}&amountType=currency'
     r = requests.get(url, headers=headers, proxies=proxy)
+    print(r.text)
     if r.status_code == 200:
         return r.json()['data']
     else:
@@ -58,8 +59,8 @@ def get_amounts(paymethod, min_amount, down, up, key, email, proxy, asset='BTC',
 
 @catch_error
 def parse_average_amount(amounts_info, count):
+    sum_amounts = 0
     if amounts_info:
-        sum_amounts = 0
         for amount in amounts_info:
             sum_amounts += float(amount['rate'])
     return sum_amounts / count
