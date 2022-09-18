@@ -239,6 +239,7 @@ def synchron(advert_id, key, email, proxy):
     headers = authorization(key, email)
     r = requests.put(url, headers=headers, proxies=proxy, json=changes_bz)
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     print('Ответ с БЗ для изменения объяв ', r.text)
 
@@ -257,6 +258,8 @@ def synchron(advert_id, key, email, proxy):
 =======
     # print('Ответ с БЗ для изменения объяв ', r.text)
 >>>>>>> 64f059f9ecfbd3b8448c29fbc68e1335e34037ef
+=======
+>>>>>>> d1ea4b50c5a8aa8b95618518066deda8ae47fe95
 
 
 @catch_error
@@ -289,4 +292,7 @@ def check_scripts(key, bz_id, email, proxy):
                 start_script(updated_script['id'])
             for advert_id in script['adverts']:
                 synchron(advert_id, key, email, proxy)
+<<<<<<< HEAD
 >>>>>>> 64f059f9ecfbd3b8448c29fbc68e1335e34037ef
+=======
+>>>>>>> d1ea4b50c5a8aa8b95618518066deda8ae47fe95
