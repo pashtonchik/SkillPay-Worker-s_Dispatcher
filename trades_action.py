@@ -51,11 +51,11 @@ def authorization(key, email_bz):
 @catch_error
 @logger.catch
 def get_all_trades(key, email):
-    logger.debug("target: get_all_trades; action: start;")
+    # logger.debug("target: get_all_trades; action: start;")
     headers = authorization(key, email)
     url = 'https://bitzlato.com/api/p2p/trade/'
     r = requests.get(url, headers=headers, proxies=proxies)
-    logger.debug(f"target: get_all_trades; action: GET {url}; code: {r.status_code}; data: {r.text}")
+    # logger.debug(f"target: get_all_trades; action: GET {url}; code: {r.status_code}; data: {r.text}")
     if r.status_code == 200:
         return r.json()['data']
     else:
@@ -94,11 +94,12 @@ def synchron(trade_id, key, email, proxy):
             'date_closed' : date_closed, 
             'date_created' : date_created
         }
-        print(changes_db['date_closed'])
+        # print(changes_db['date_closed'])
         r_db = requests.post(url_db, json=changes_db)
-        logger.debug(f"target: synchron; action: POST {url}, data: {changes_db} status:{r_db.status_code}")
+        # logger.debug(f"target: synchron; action: POST {url}, data: {changes_db} status:{r_db.status_code}")
     else:
-        logger.debug(f"target: synchron; ERROR 93 line. get_trade status code != 200")
+        pass
+        # logger.debug(f"target: synchron; ERROR 93 line. get_trade status code != 200")
 
     
 
@@ -108,6 +109,7 @@ def synchron(trade_id, key, email, proxy):
 def check_trades(key, bz_id, email, proxy):
     #logger.debug(f"target: check_trades; action: start")
     for adv in get_all_trades(key, email):
+        # print(adv, email)
         header = authorization(key=key, email_bz=email)
         id = adv['id']
         adv_requests = requests.get(f'https://bitzlato.bz/api/p2p/trade/{id}', headers=header, proxies=proxy)

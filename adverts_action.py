@@ -1,4 +1,5 @@
 import datetime
+from email.policy import EmailPolicy
 import time
 import random
 import requests
@@ -50,7 +51,7 @@ def get_amounts(paymethod, min_amount, down, up, key, email, proxy, asset='BTC',
     f'isOwnerVerificated=false&isOwnerTrusted=false&isOwnerActive=false&'\
     f'amount={min_amount}&paymethod={str(paymethod)}&amountType=currency'
     r = requests.get(url, headers=headers, proxies=proxy)
-    print(r.text)
+    # print(r.text)
     if r.status_code == 200:
         return r.json()['data']
     else:
@@ -99,6 +100,8 @@ def get_all_adverts(key, email, proxy):
                     'user': user_id['userId']
                 }
                 r1 = requests.post(URL_DJANGO + 'api/create/advert/', json=add_advert)
+
+                print(r1.text)
         return r.json()
     else:
         return []
@@ -217,7 +220,7 @@ def edit_amount_script(script_id, average_amount):
 
 @catch_error
 def synchron(advert_id, key, email, proxy):
-    print(1)
+
     url = f'https://bitzlato.com/api/p2p/dsa/{advert_id}'
     url_db = URL_DJANGO + f'api/get/advert_info/{advert_id}'
 
@@ -230,27 +233,14 @@ def synchron(advert_id, key, email, proxy):
     headers = authorization(key, email)
     r = requests.put(url, headers=headers, proxies=proxy, json=changes_bz)
 
-    print('Ответ с БЗ для изменения объяв ', r.text)
-
-
-
-# @catch_error
-# def check_advert(key, bz_id, email, proxy):
-#     for adv in get_all_adverts(key, email, proxy):
-#         req_db = requests.get(f'''http://194.58.92.160:8001/api/get/advert/{adv['id']}/''').json()
-#         limit_min = req_db['limit_min']
-#         paymethod = req_db['paymethod']
-#         adv_id = adv['id']
-#         average_amount = parse_average_amount(get_amounts(paymethod, limit_min, key=key, email=email, proxy=proxy))
-#         edit_rate_value_advert(adv_id, average_amount, key, email, proxy=proxy)
-#         synchron(adv_id, key, email, proxy)
     # print('Ответ с БЗ для изменения объяв ', r.text)
+
 
 
 @catch_error
 def check_scripts(key, bz_id, email, proxy):
-    print(1)
     all_adverts = get_all_adverts(key, email, proxy)
+    # print(email, key)
     for script in get_all_scripts():
         limit_min = script['script']['amount']
         paymethod = script['script']['paymethod']
