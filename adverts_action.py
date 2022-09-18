@@ -1,8 +1,8 @@
 import datetime
 import time
 import random
-
 import requests
+from log import logger
 from jose import jws
 from jose.constants import ALGORITHMS
 

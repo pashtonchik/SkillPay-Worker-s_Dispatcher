@@ -9,9 +9,11 @@ import adverts_action
 import trades_action
 from parse_garantex import parse_garantex
 import connector
+from log import logger
 
 app = Flask(__name__)
-          
+
+@logger.catch          
 @app.route('/check_adverts', methods=['POST', 'GET'])
 def add_worker():
 
@@ -28,6 +30,7 @@ def add_worker():
         th.start()
     return "OK", 200, {'Content-Type': 'text/plain'}
 
+@logger.catch
 @app.route('/check_trades', methods=['POST', 'GET'])
 def check():
     

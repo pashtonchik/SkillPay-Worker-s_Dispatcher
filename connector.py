@@ -4,6 +4,7 @@ import time
 import requests
 url_error = 'http://194.58.92.160:8001/api/error/'
 import json
+from log import logger
 
 
 def catch_error(func):
@@ -27,6 +28,7 @@ URL_FLASK = 'http://127.0.0.1:5001/'
 
 
 @catch_error
+@logger.catch
 def connector():
     while True:
         try:
