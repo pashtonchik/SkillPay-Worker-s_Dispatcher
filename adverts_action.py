@@ -7,7 +7,7 @@ from jose import jws
 from jose.constants import ALGORITHMS
 
 
-URL_DJANGO = 'http://194.58.92.160:8001/'
+URL_DJANGO = 'http://127.0.0.1:8000/'
 
 
 def catch_error(func):
@@ -98,7 +98,7 @@ def get_all_adverts(key, email, proxy):
                     'is_active': True if (advert['status'] == 'active') else False,
                     'user': user_id['userId']
                 }
-                r1 = requests.post('http://194.58.92.160:8001/api/create/advert/', json=add_advert)
+                r1 = requests.post(URL_DJANGO + 'api/create/advert/', json=add_advert)
         return r.json()
     else:
         return []
@@ -120,13 +120,13 @@ def edit_rate_value_advert(advert_id, average_price, key, email, proxy):
                 'advert_id' : advert_id
             }
 
-            get_price_garantex = 'http://194.58.92.160:8001/api/get_exchange_garantex/'
+            get_price_garantex = URL_DJANGO + 'api/get_exchange_garantex/'
             price_garantex = requests.get(get_price_garantex).json()['btc-rub']
             
             headers = authorization(key, email)
             get_adv = requests.get(url, headers=headers, proxies=proxy)
             if get_adv.status_code == 200:
-                advert_info = requests.post('http://194.58.92.160:8001/api/get_advert_info/', json=advert)
+                advert_info = requests.post(URL_DJANGO + 'api/get_advert_info/', json=advert)
                 if advert_info.json()['revenue_percentage'] != None:
                 
                     percent = float(advert_info.json()['revenue_percentage'])
@@ -219,7 +219,7 @@ def edit_amount_script(script_id, average_amount):
 def synchron(advert_id, key, email, proxy):
     print(1)
     url = f'https://bitzlato.com/api/p2p/dsa/{advert_id}'
-    url_db = f'http://194.58.92.160:8001/api/get/advert_info/{advert_id}'
+    url_db = URL_DJANGO + f'api/get/advert_info/{advert_id}'
 
     advert_info_db = requests.get(url_db).json()
     changes_bz = {
@@ -249,6 +249,7 @@ def synchron(advert_id, key, email, proxy):
 
 @catch_error
 def check_scripts(key, bz_id, email, proxy):
+    print(1)
     all_adverts = get_all_adverts(key, email, proxy)
     for script in get_all_scripts():
         limit_min = script['script']['amount']
