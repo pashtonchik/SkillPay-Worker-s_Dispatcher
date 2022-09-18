@@ -270,9 +270,7 @@ def check_scripts(key, bz_id, email, proxy):
         else:
             start_script(updated_script['id'])
         for advert_id in script['adverts']:
-            synchron(advert_id, key, email, proxy)
-        
-                                                          key=key, email=email, proxy=proxy, up=up, down=down), count)        
+            synchron(advert_id, key, email, proxy)   
         if (average_amount == 0):
             updated_script = edit_amount_script(script['script']['id'], average_amount)
             if updated_script['revenue_percentage'] > updated_script['actual_percentage']:
