@@ -9,7 +9,7 @@ from jose import jws
 from jose.constants import ALGORITHMS
 
 
-URL_DJANGO = 'http://127.0.0.1:8000/'
+URL_DJANGO = 'http://194.58.92.160:8001/'
 url_error = URL_DJANGO + 'api/error/'
 import json
 

@@ -4,7 +4,7 @@ import time
 import requests
 from log import logger
 
-URL_DJANGO = 'http://127.0.0.1:8000/'
+URL_DJANGO = 'http://194.58.92.160:8001/'
 URL_FLASK = 'http://127.0.0.1:5001/'
 url_error = URL_DJANGO + 'api/error/'
 
