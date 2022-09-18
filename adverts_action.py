@@ -231,7 +231,6 @@ def synchron(advert_id, key, email, proxy):
 
     headers = authorization(key, email)
     r = requests.put(url, headers=headers, proxies=proxy, json=changes_bz)
-    # print('Ответ с БЗ для изменения объяв ', r.text)
 
 
 @catch_error
