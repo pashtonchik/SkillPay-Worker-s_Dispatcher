@@ -35,7 +35,7 @@ if __name__ == '__main__':
     headers = authorization(key, email)
     data = {
         'advertId' : '654602',
-        'amount' : '1000',
+        'amount' : '10',
         'rate' : '1197339',
         'amountType' : 'RUB',
         'counterDetails' : 'Оплата на номер 939393993 лаллала'

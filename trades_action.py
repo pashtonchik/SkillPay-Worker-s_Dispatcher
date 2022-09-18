@@ -23,7 +23,7 @@ def catch_error(func):
                 'text': str(e),
             }
             r = requests.post(url_error, json=data)
-            raise e
+            pass
     return wrapper
 
 
@@ -68,9 +68,26 @@ def synchron(trade_id, key, email, proxy):
 
 
     if (get_trade.status_code == 200):
+        date_created = 0
+        date_closed = 0 
+        for i in get_trade.json()['history']:
+            print(i)
+            if i['status'] == 'trade_created':
+                print(1111, i['date'])
+                date_created = datetime.datetime.fromtimestamp(i['date'] / 1000)
+                print(date_created)
+
+                
+            elif i['status'] == 'confirm_payment':
+                print(11111)
+
+                date_closed = datetime.datetime.fromtimestamp(i['date'] / 1000)
+                print(date_closed)
         changes_db = {
             'id': trade_id,
-            'status': get_trade.json()['status']
+            'status': get_trade.json()['status'],
+            'date_closed' : date_closed, 
+            'date_created' : date_created
         }
         r_db = requests.post(url_db, json=changes_db)
     else:
@@ -86,7 +103,25 @@ def check_trades(key, bz_id, email, proxy):
         id = adv['id']
         adv_requests = requests.get(f'https://bitzlato.bz/api/p2p/trade/{id}', headers=header, proxies=proxy)
         if (adv_requests.status_code == 200):
+            date_created = 0
+            date_closed = 0 
             adv_info = adv_requests.json()
+            for i in adv_info['history']:
+                print(i)
+                if i['status'] == 'trade_created':
+                    print(1111, i['date'])
+                    date_created = datetime.datetime.fromtimestamp(i['date'] / 1000)
+                    print(date_created)
+
+                    
+                elif i['status'] == 'confirm_payment':
+                    print(11111)
+
+                    date_closed = datetime.datetime.fromtimestamp(i['date'] / 1000)
+                    print(date_closed)
+                print('pASS')
+
+            # print(adv_info['history'])
             cryptocurrency = adv['cryptocurrency']['code']
             cryptocurrency_amount = adv['cryptocurrency']['amount']
             currency = adv['currency']['code']
@@ -113,7 +148,9 @@ def check_trades(key, bz_id, email, proxy):
                     'details': str(details),
                     'counterDetails' : str(counterDetails),
                     'status':status,
-                    'partner' : partner
+                    'partner' : partner,
+                    'date_created' : date_created if (date_created) else None ,
+                    'date_closed' :  date_closed if date_closed else None
                 }
                 add_trade = requests.post('http://194.58.92.160:8001/api/create/trade/', json=data)
         synchron(email=email, key=key, trade_id=id, proxy=proxy)

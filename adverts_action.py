@@ -49,9 +49,15 @@ def get_amounts(paymethod, min_amount, down, up, key, email, proxy, asset='BTC',
     f'type=selling&currency={fiat}&cryptocurrency={asset}&' \
     f'isOwnerVerificated=false&isOwnerTrusted=false&isOwnerActive=false&'\
     f'amount={min_amount}&paymethod={str(paymethod)}&amountType=currency'
+<<<<<<< HEAD
     r = requests.get(url, headers=headers, proxies=proxy)
     if str(paymethod) == 3547:
         print('Ответ от БЗ парс объяв ', r.text)
+=======
+    # print(min_amount, paymethod)
+    r = requests.get(url, headers=headers, proxies=proxy)
+    # print('Ответ от БЗ парс объяв ', r.text)
+>>>>>>> 64f059f9ecfbd3b8448c29fbc68e1335e34037ef
     if r.status_code == 200:
         return r.json()['data']
     else:
@@ -81,13 +87,14 @@ def get_all_adverts(key, email, proxy):
     headers = authorization(key, email)
     url = 'https://bitzlato.com/api/p2p/dsa/all'
     r = requests.get(url, headers=headers, proxies=proxy)
-
     headers = authorization(key, email)
     url = 'https://bitzlato.com/api/auth/whoami'
     user_id = requests.get(url, headers=headers, proxies=proxy).json()
     if r.status_code == 200:
         exists_advert_id = requests.get(URL_DJANGO + 'api/adverts/').json()
         for advert in r.json():
+
+            print(exists_advert_id)
             if not str(advert['id']) in exists_advert_id:
                 add_advert = {
                     'advert_id': advert['id'],
@@ -100,6 +107,7 @@ def get_all_adverts(key, email, proxy):
                     'user': user_id['userId']
                 }
                 r1 = requests.post('http://194.58.92.160:8001/api/create/advert/', json=add_advert)
+                print(r1.status_code)
         return r.json()
     else:
         return []
@@ -230,6 +238,7 @@ def synchron(advert_id, key, email, proxy):
 
     headers = authorization(key, email)
     r = requests.put(url, headers=headers, proxies=proxy, json=changes_bz)
+<<<<<<< HEAD
 
     print('Ответ с БЗ для изменения объяв ', r.text)
 
@@ -245,6 +254,9 @@ def synchron(advert_id, key, email, proxy):
 #         average_amount = parse_average_amount(get_amounts(paymethod, limit_min, key=key, email=email, proxy=proxy))
 #         edit_rate_value_advert(adv_id, average_amount, key, email, proxy=proxy)
 #         synchron(adv_id, key, email, proxy)
+=======
+    # print('Ответ с БЗ для изменения объяв ', r.text)
+>>>>>>> 64f059f9ecfbd3b8448c29fbc68e1335e34037ef
 
 
 @catch_error
@@ -257,6 +269,7 @@ def check_scripts(key, bz_id, email, proxy):
         down = script['script']['bottom_target']
         count = up - down + 1
         average_amount = parse_average_amount(get_amounts(paymethod, limit_min,
+<<<<<<< HEAD
                                                           key=key, email=email, proxy=proxy, up=up, down=down), count)
         updated_script = edit_amount_script(script['script']['id'], average_amount)
         if updated_script['revenue_percentage'] > updated_script['actual_percentage']:
@@ -266,3 +279,14 @@ def check_scripts(key, bz_id, email, proxy):
         for advert_id in script['adverts']:
             synchron(advert_id, key, email, proxy)
         
+=======
+                                                          key=key, email=email, proxy=proxy, up=up, down=down), count)        
+        if (average_amount == 0):
+            updated_script = edit_amount_script(script['script']['id'], average_amount)
+            if updated_script['revenue_percentage'] > updated_script['actual_percentage']:
+                stop_script(updated_script['id'])
+            else:
+                start_script(updated_script['id'])
+            for advert_id in script['adverts']:
+                synchron(advert_id, key, email, proxy)
+>>>>>>> 64f059f9ecfbd3b8448c29fbc68e1335e34037ef
