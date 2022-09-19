@@ -2,3 +2,7 @@ venv
 __pycache__
 .idea/
 *.txt
+debug.log
+info.log
+error.log
+nohup.out

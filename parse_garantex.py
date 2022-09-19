@@ -1,6 +1,9 @@
 import time
 import requests
 
+from server import URL_DJANGO
+
+
 def parse_garantex():
     while True:
         garantex_resp = requests.get('https://garantex.io/api/v2/depth?market=btcrub')
@@ -18,13 +21,14 @@ def parse_garantex():
                 'price': actually_price,
             }
 
-            server_resp = requests.post('http://194.58.92.160:8000/api/update/garantex', json=exchange_info)
+            server_resp = requests.post(URL_DJANGO + 'api/update/garantex', json=exchange_info)
             if (server_resp.status_code != 200):
                 print(f'[ERROR] {server_resp.status_code}')
             else:
                 print(f'[POLLING]')
         else:
             print(f'[ERROR Garantex]')
+            continue
         time.sleep(15)
 
 if __name__ == '__main__':

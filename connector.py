@@ -2,8 +2,12 @@ import requests
 import time 
 
 import requests
-url_error = 'http://194.58.92.160:8000/api/error/'
-import json
+from log import logger
+from server import URL_DJANGO
+
+URL_FLASK = 'http://127.0.0.1:5001/'
+url_error = URL_DJANGO + 'api/error/'
+
 
 def catch_error(func):
     def wrapper(*args, **kwargs):
@@ -20,10 +24,9 @@ def catch_error(func):
             pass
     return wrapper
 
-URL_DJANGO = 'http://194.58.92.160:8000/'
-URL_FLASK = 'http://127.0.0.1:5000/'
 
 @catch_error
+@logger.catch
 def connector():
     while True:
         try:
@@ -34,4 +37,4 @@ def connector():
         except Exception as e:
             print(e)
             pass
-        time.sleep(15) 
+        time.sleep(15)

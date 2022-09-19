@@ -9,9 +9,13 @@ import adverts_action
 import trades_action
 from parse_garantex import parse_garantex
 import connector
+from log import logger
 
 app = Flask(__name__)
-          
+
+URL_DJANGO = 'http://194.58.92.160:8000/'
+
+@logger.catch          
 @app.route('/check_adverts', methods=['POST', 'GET'])
 def add_worker():
 
@@ -24,10 +28,11 @@ def add_worker():
     proxy = data['proxy']
     # print(proxy)
     if (command == 'check_adverts'):
-        th = threading.Thread(target=adverts_action.check_advert, args=(key, id, email, proxy))
+        th = threading.Thread(target=adverts_action.check_scripts, args=(key, id, email, proxy))
         th.start()
     return "OK", 200, {'Content-Type': 'text/plain'}
 
+@logger.catch
 @app.route('/check_trades', methods=['POST', 'GET'])
 def check():
     
@@ -52,6 +57,6 @@ def check():
 if __name__ == '__main__':
     threading.Thread(target=parse_garantex, args=()).start()
     threading.Thread(target=connector.connector, args=()).start()
-    app.run()
+    app.run(host="0.0.0.0", port=int("5001"))
    
 
