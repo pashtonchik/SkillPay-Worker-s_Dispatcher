@@ -13,6 +13,8 @@ from log import logger
 
 app = Flask(__name__)
 
+URL_DJANGO = 'http://194.58.92.160:8000/'
+
 @logger.catch          
 @app.route('/check_adverts', methods=['POST', 'GET'])
 def add_worker():

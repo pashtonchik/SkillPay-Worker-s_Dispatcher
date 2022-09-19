@@ -1,8 +1,7 @@
 import time
 import requests
 
-
-URL_DJANGO = 'http://194.58.92.160:8001/'
+from server import URL_DJANGO
 
 
 def parse_garantex():

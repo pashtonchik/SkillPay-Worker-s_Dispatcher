@@ -6,8 +6,7 @@ from log import logger
 from jose import jws
 from jose.constants import ALGORITHMS
 
-
-URL_DJANGO = 'http://194.58.92.160:8001/'
+from server import URL_DJANGO
 
 
 def catch_error(func):
@@ -231,20 +230,6 @@ def synchron(advert_id, key, email, proxy):
     r = requests.put(url, headers=headers, proxies=proxy, json=changes_bz)
 
     print('Ответ с БЗ для изменения объяв ', r.text)
-
-
-
-# @catch_error
-# def check_advert(key, bz_id, email, proxy):
-#     for adv in get_all_adverts(key, email, proxy):
-#         req_db = requests.get(f'''http://194.58.92.160:8001/api/get/advert/{adv['id']}/''').json()
-#         limit_min = req_db['limit_min']
-#         paymethod = req_db['paymethod']
-#         adv_id = adv['id']
-#         average_amount = parse_average_amount(get_amounts(paymethod, limit_min, key=key, email=email, proxy=proxy))
-#         edit_rate_value_advert(adv_id, average_amount, key, email, proxy=proxy)
-#         synchron(adv_id, key, email, proxy)
-    # print('Ответ с БЗ для изменения объяв ', r.text)
 
 
 @catch_error

@@ -8,8 +8,8 @@ import requests
 from jose import jws
 from jose.constants import ALGORITHMS
 
+from server import URL_DJANGO
 
-URL_DJANGO = 'http://194.58.92.160:8001/'
 url_error = URL_DJANGO + 'api/error/'
 import json
 
