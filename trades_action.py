@@ -8,7 +8,7 @@ import requests
 from jose import jws
 from jose.constants import ALGORITHMS
 
-from server import URL_DJANGO
+from django import URL_DJANGO
 
 url_error = URL_DJANGO + 'api/error/'
 import json

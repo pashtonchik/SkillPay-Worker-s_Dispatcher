@@ -2,11 +2,11 @@ import datetime
 import time
 import random
 import requests
+
+from django import URL_DJANGO
 from log import logger
 from jose import jws
 from jose.constants import ALGORITHMS
-
-from server import URL_DJANGO
 
 
 def catch_error(func):

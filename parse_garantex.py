@@ -1,7 +1,7 @@
 import time
 import requests
 
-from server import URL_DJANGO
+from django import URL_DJANGO
 
 
 def parse_garantex():
