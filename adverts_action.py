@@ -245,7 +245,8 @@ def check_scripts(key, bz_id, email, proxy):
         average_amount = parse_average_amount(get_amounts(paymethod, limit_min,
                                                           key=key, email=email, proxy=proxy, up=up, down=down), count)
         updated_script = edit_amount_script(script['script']['id'], average_amount)
-        if updated_script['revenue_percentage'] > updated_script['actual_percentage']:
+        if (updated_script.get('revenue_percentage', None) and updated_script.get('actual_percentage', None)) \
+         and (updated_script.get('revenue_percentage', None) > updated_script.get('actual_percentage', None)):
             stop_script(updated_script['id'])
         else:
             start_script(updated_script['id'])
@@ -253,7 +254,8 @@ def check_scripts(key, bz_id, email, proxy):
             synchron(advert_id, key, email, proxy)   
         if average_amount == 0:
             try_updated_script = edit_amount_script(script['script']['id'], average_amount)
-            if try_updated_script['revenue_percentage'] > try_updated_script['actual_percentage']:
+            if  (try_updated_script.get('revenue_percentage', None) and try_updated_script.get('actual_percentage', None)) \
+                and (try_updated_script.get('revenue_percentage', None) > try_updated_script.get('actual_percentage', None)):
                 stop_script(try_updated_script['id'])
             else:
                 start_script(try_updated_script['id'])
