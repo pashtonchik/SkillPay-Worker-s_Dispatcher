@@ -10,10 +10,10 @@ import trades_action
 from parse_garantex import parse_garantex
 import connector
 from log import logger
-
+from setting import URL_DJANGO
 app = Flask(__name__)
 
-URL_DJANGO = 'http://194.58.92.160:8000/'
+# URL_DJANGO = 'http://194.58.92.160:8000/'
 
 @logger.catch          
 @app.route('/check_adverts', methods=['POST', 'GET'])
