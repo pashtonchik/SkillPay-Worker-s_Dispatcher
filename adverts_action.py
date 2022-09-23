@@ -216,7 +216,7 @@ def edit_amount_script(script_id, average_amount):
 @catch_error
 def synchron(advert_id, key, email, proxy):
     url = f'https://bitzlato.com/api/p2p/dsa/{advert_id}'
-    url_db = URL_DJANGO + f'api/get/advert_info/{advert_id}'
+    url_db = URL_DJANGO + f'api/get/advert_info/{advert_id}/'
 
     advert_info_db = requests.get(url_db).json()
     changes_bz = {
