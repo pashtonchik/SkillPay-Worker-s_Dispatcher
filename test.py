@@ -1,94 +1,11 @@
-import datetime
-import json
-import time
-import random
-import base64
+from garantexAPI.auth import get_jwt
+from garantexAPI.trades import get_trades, get_trade_detail
+from garantexAPI.adds import get_adds, edit_add
+from garantexAPI.chat import get_all_chats, get_messages_from_chat
+private_key = 'LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcEFJQkFBS0NBUUVBd0M3aWFWWFdTdmR2TVAwRnpzK0NjY0pRdUpuelBaUE5VbGlLUjdLYVE5VWhiY1Z6CmZwTDV0ZGlJemllV2tMT0lSTzNBbFp4RHRSdUJnZTQ0S0RVdVhtZ0svZyt5aE1zSXRILzhXODJiV1g0RVJGdzYKVE1sTlYvRE1PMEFJSllYZHVzcGlmd3E3NzROVTVxeFdqcER2ZVA5SnlDSUQvM2hQTG82KzdBVlFiMVhLS3I0ZgppVnZSa2xhNjl0dHQ5T1pOUWkxdWpSbFBsYjVrVnRsS05vV0RmcFJKaFQ4SjlWc1crQjRSZ3ZRYnBmakFlSWNQCnNISUE2c2pGR3RvaGNtOFIxM2VuVDlzbW40MW9XZDBUMnVhUGRyNlg3RHR0OTBZdUVPUEcvaGZJcGZhYmhqSlUKdEFjK2RCQWFMMTZGZ0N6TGFWc01BYmZMTVM4OGhkTm40OUgrQ3dJREFRQUJBb0lCQVFDYmlKWW1KNWpoWFBUNQpFWjBVcmEzbFFSeXcrYTc0dzloa2IxR2lDdko4T1UzdmwrQUxyUWs0MlVDR2oxVjBVRWZWZVJEbVErd3I4MUhSCmhLaWdLY0lZRjEzbUZYQWx0bWVhSlFab2liTFRMNEJtanJtRUVWcHQ5R3hrKzBKY2s4VkorYWJUS0MzRy9tUEUKdCs3cFBIVUNXS0V1dmhDOFBYTGZ2Qmpaek1jM0FpK1gyWWk0dWRUbWQ1OUUwUjhFM1pRWW44UWxyVng1TXNmTApBRVFZajJIOTdIQW1CdXZBcDJBcGc4L2VtTmVJVVM1RFRwK2crc3NnaGdYSFR4aTZCZ2Q1YkNYZDFMSnRTbEw2CndabW9aMm5VVzYxZUd5SG9uSmg2ZzZBMk93WXFBako4UzMxcTJ1SFNvVDJ5ZFp1bFN6SGZteCtkQU5WZjNiT0QKVEFHcmRicXhBb0dCQVBPN2gzSVpXTk5CRE1iQ20yak9hM3FoaVlLYkxnbXdFMG4wd3BNZWx4eW1KRkJqbkl3aApVMFZyeXRCZytCbHMrS2tHR0I0dzAydDlEdUVJZ2c2N0hYam1GK1ZtQmpGN1pIajRTNVlQSTFjYnkrSWlQS2d6CkdjLzFwMFVtNC8xNHhrNEFteHRwV2JaR2F6K2lpai9BMzlIemR2L1VjR1RZMWo1aUo2YUtaTGZwQW9HQkFNbmIKSlc4WnE0NU42R0FFOTJudmRVTTkycTBYSTcwMzg1K1NDQXZ0WXhCUDRVNmRIQU5JTUJHYVhIZDBYeVd0cVZ2awpKUWlLOUlmM01WOXkxRUN0K0lGRlZ3MjhNcmYxZDkwZ1c0KzJZQnFoRFhOMUpuRk5KOWwwbE93LzFuenZ3MTQ1CmRkV2liTGR5cWlDdGdrV3ZXK3YzV0pjcUFsVm5zaXI0R21wdDBvSFRBb0dBYjQwMTJhL21LcElNTWZBaHh0OHEKNis2QkRFalAwbGxIQ3NNK1JxMXFoZzg0Y1o2VnFNRWI1cHNHTVVjZ1ppcXN5RmRrdEhTdVh2VFcyWUhXWEwyaApLSk5PL293cWEzMUpKK0NrWDZMQUR2OUcybEhISjBoMEdPMGF5SmliSW9pallsSCtxNVlWSEVxd2pXaHNFKy9ICndNVElneUNNN0dzZDYyRnJPbHIrNi9rQ2dZQTRHWVhQMk15TElpL2c3OEJyV3JlMlZteCtDcDVPS2t5MUhucksKQmRHd2FPTHZYRTY2d3NkSlBTTlJ0Ni94NHMvYzBBMVMwSHVoaGh2Y3NTYzRTcUYwRy9kVHcrZzhwQ1lKK01JNQpzTEFJOXBXc2J2U2VMSmxVb0VmN1dNcWRzbTBUdE5pQTVVRmR3cXB4cG9jOElyNWpXRHp3MWlZTDRtUHIrVVF1CkxCT0RMUUtCZ1FEenFXeHBPc0VwOTNkTDRNUGtVaHFkLzd1SnlHV0RzdlFDRlR2YUZFcDRsZndRR1d0blFkR0UKNFlGWndGZjA5WDhBN0k1L2x0Qi9obnBKWHZXU2ozMmZOUFNOb2U0Rk4yOEhBUXo1Nzh0ak1XTXNHaTAyQm0xVgp3Q1NQY2U2WmxaOVQyQzIyWElhM0tEREMrWkU4NTk5bXFyd0orOFI3clVWdWltWWlBUi9Ga1E9PQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo='
+uid = 'b5e94c7f-3f35-450f-a87a-4a3f1f40a0a0'
+host = 'garantex.io'  # для тестового сервера используйте stage.garantex.biz
 
-import requests
-from jose import jws
-from jose.constants import ALGORITHMS
-
-
-proxies = {
-    'https': 'http://rp3R2E:fAfUYW@193.41.123.50:8000'
-}
-
-
-def authorization(key, email_bz):
-    dt = datetime.datetime.now()
-    ts = time.mktime(dt.timetuple())
-    claims = {
-        "email": email_bz,
-        "aud": "usr",
-        "iat": int(ts),
-        "jti": hex(random.getrandbits(64))
-    }
-    token = jws.sign(claims, key, headers={
-                     "kid": "1"}, algorithm=ALGORITHMS.ES256)
-    return {'Authorization': "Bearer " + token}
-
-
-if __name__ == '__main__':
-
-    # key = {"kty":"EC","alg":"ES256","crv":"P-256","x":"SkcQ2TUWCEygFEhSOBhThRu8jUCc7NmLtJPOOOu52ec","y":"aNLV7Bg5CHqtiTcm5EVHmrjPNME_2mxrWp4AJGZfl80","d":"nqHmOQD-LwlkFby0slQZAXd-tqo9TbIy7hoVTAh76VA"}
-
-    # email = 'superfast385903@gmail.com'
-
-    key = {'d': 'nqHmOQD-LwlkFby0slQZAXd-tqo9TbIy7hoVTAh76VA', 'x': 'SkcQ2TUWCEygFEhSOBhThRu8jUCc7NmLtJPOOOu52ec', 'y': 'aNLV7Bg5CHqtiTcm5EVHmrjPNME_2mxrWp4AJGZfl80', 'alg': 'ES256', 'crv': 'P-256', 'kty': 'EC'}
-    email = 'protraderz2000@gmail.com'
-    
-    # with open("my_image.png", "rb") as f:
-    #     png_encoded = base64.b64encode(f.read())
-
-    # print(type(png_encoded))
-    headers = authorization(key, email)
-
-    # url = 'https://bitzlato.bz/api/p2p/trade/17268092/chat/sendfile/'
-    # data_message = {
-    #     'message' : '11',
-    #     'payload' : {
-    #         'message' : 'string'
-        # }
-    # }
-    # data = {
-        # 'mime_type': 'image/png',
-        # 'name': 'Снимок экрана от 2022-09-06 15-41-47.png'
-    # }
-    # files = {'file': open('img.png', 'rb')}
-    
-    # r = requests.post(url, headers=headers, proxies=proxies, files=files)
-
-    # send_message = f'https://bitzlato.bz/api/p2p/trade/17268092/chat/'
-    # headers = authorization(key, email)
-    # data_message = {
-        # 'message' : 'Оплатил.',
-        # 'payload' : {
-            # 'message' : 'string'
-        # }
-    # }
-    # r = requests.post(send_message, headers=headers, proxies=proxies, json=data_message)
-
-    # url = 'https://bitzlato.bz/api/p2p/trade/17248185'
-
-    # data = {
-
-    # }
-    # r = requests.get(url, headers=headers, proxies=proxies)
-
-    # url = 'https://bitzlato.bz/api/p2p/trade/17248661'
-
-    # r = requests.get(url, headers=headers, proxies=proxies)
-
-    # data = {
-        # 'type': 'cancel'
-    # }
-    # url = 'https://bitzlato.com/api/p2p/trade/17260396'
-
-    # r = requests.get(url, headers=headers, proxies=proxies)
-
-    url = 'https://bitzlato.bz/api/auth/whoami'
-
-    r = requests.get(url, headers=headers, proxies=proxies)
-
-
-    print(r.status_code, r.text)
+JWT = get_jwt(private_key, uid)
+print(get_all_chats(JWT))
+print(get_messages_from_chat(JWT, 1501484))

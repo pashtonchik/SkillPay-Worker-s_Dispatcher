@@ -15,10 +15,10 @@ app = Flask(__name__)
 
 # URL_DJANGO = 'http://194.58.92.160:8000/'
 
-@logger.catch          
-@app.route('/check_adverts', methods=['POST', 'GET'])
-def add_worker():
 
+@logger.catch          
+@app.route('/check_bz_adverts', methods=['POST', 'GET'])
+def bz_adverts():
     data = request.get_json()
     id = data['id']
     key = data['key']
@@ -27,15 +27,15 @@ def add_worker():
     # print(data['key'])    
     proxy = data['proxy']
     # print(proxy)
-    if (command == 'check_adverts'):
+    if command == 'check_adverts':
         th = threading.Thread(target=adverts_action.check_scripts, args=(key, id, email, proxy))
         th.start()
     return "OK", 200, {'Content-Type': 'text/plain'}
 
+
 @logger.catch
-@app.route('/check_trades', methods=['POST', 'GET'])
-def check():
-    
+@app.route('/check_bz_trades', methods=['POST', 'GET'])
+def bz_trades():
     data = request.get_json()
     # print(data)
     id = data['id']
@@ -44,14 +44,10 @@ def check():
     email = data['email']
     proxy = data['proxy']
     # print(data['key'])    
-    if (command == 'check_adverts'):
+    if command == 'check_adverts':
         th = threading.Thread(target=trades_action.check_trades, args=(key, id, email, proxy))
         th.start()
     return "OK", 200, {'Content-Type': 'text/plain'}
-
-
-
-
 
 
 if __name__ == '__main__':

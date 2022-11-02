@@ -11,7 +11,7 @@ from jose.constants import ALGORITHMS
 from setting import URL_DJANGO
 
 url_error = URL_DJANGO + 'api/error/'
-import json
+
 
 def catch_error(func):
     def wrapper(*args, **kwargs):
@@ -29,10 +29,10 @@ def catch_error(func):
     return wrapper
 
 
-
 proxies = {
     'https': 'http://CMg6mg:fHoqJx@185.168.248.24:8000'
 }
+
 
 @catch_error
 @logger.catch
@@ -48,6 +48,7 @@ def authorization(key, email_bz):
     token = jws.sign(claims, key, headers={"kid": "1"}, algorithm=ALGORITHMS.ES256)
     return {'Authorization': "Bearer " + token}
 
+
 @catch_error
 @logger.catch
 def get_all_trades(key, email):
@@ -58,6 +59,7 @@ def get_all_trades(key, email):
         return r.json()['data']
     else:
         return []
+
 
 @catch_error
 @logger.catch
@@ -91,8 +93,6 @@ def synchron(trade_id, key, email, proxy):
     else:
         pass
     
-    
-
 
 @catch_error
 @logger.catch
@@ -102,7 +102,7 @@ def check_trades(key, bz_id, email, proxy):
         id = adv['id']
         adv_requests = requests.get(f'https://bitzlato.bz/api/p2p/trade/{id}', headers=header, proxies=proxy)
 
-        if (adv_requests.status_code == 200):
+        if adv_requests.status_code == 200:
             date_created = 0
             date_closed = 0 
             adv_info = adv_requests.json()
