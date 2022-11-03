@@ -1,6 +1,8 @@
 from garantexAPI.trades import *
 from garantexAPI.auth import *
 from setting import URL_DJANGO
+from log import logger
+
 
 user = {
     'id': 'SNCE99027726',
@@ -8,23 +10,45 @@ user = {
     'uid': 'b5e94c7f-3f35-450f-a87a-4a3f1f40a0a0',
 }
 
+url_error = URL_DJANGO + 'api/error/'
 
+
+def catch_error(func):
+    def wrapper(*args, **kwargs):
+        try:
+            res = func(*args, **kwargs)
+            return res
+        except Exception as e:
+            data = {
+                'error_class': str(type(e)),
+                'target': func.__name__,
+                'text': str(e),
+            }
+            r = requests.post(url_error, json=data)
+            pass
+    return wrapper
+
+
+@catch_error
+@logger.catch
 def adds_bd():
     return requests.get(URL_DJANGO + 'get/ids/gar/trades/').json()
 
 
-def create_bd_gar_trade(user, info_trade):
+@catch_error
+@logger.catch
+def create_bd_gar_trade(jwt, info_trade):
+    trade_detail = get_trade_detail(jwt, info_trade['id'])
     body_create_trade = {
         'id': str(info_trade['id']),
-        'gar_user_id': user['id'],
+        'gar_advert': trade_detail['ad']['id'],
         'cryptocurrency': 'RUB',
         'cryptocurrency_amount': str(info_trade['amount']),
         'currency': 'RUB',
         'currency_amount': str(info_trade['volume']),
         'details': 'aaaaaaaa',
-        'paymethod': 443, #############################################
+        'paymethod': 443 if trade_detail['ad']['payment_method'] == 'Тинькофф' else 3547,
         'partner': info_trade['seller'],
-        'counterDetails': info_trade['payment_details'],
         'status': info_trade['state'], ###########################################################################
         'date_created': datetime.datetime.strptime(info_trade['created_at'].split('+')[0],
                                                    '%Y-%m-%dT%H:%M:%S').timestamp(),
@@ -37,20 +61,14 @@ def create_bd_gar_trade(user, info_trade):
     print(a.status_code)
 
 
+@catch_error
+@logger.catch
 def update_bd_gar_trade(info_trade):
+    print('update')
     body_update_trade = {
         'id': str(info_trade['id']),
-        'gar_user_id': user['id'],
-        'cryptocurrency': 'RUB',
-        'cryptocurrency_amount': str(info_trade['amount']),
-        'currency': 'RUB',
-        'currency_amount': str(info_trade['volume']),
-        'details': '',
-        'partner': info_trade['seller'],
         'counterDetails': info_trade['payment_details'],
         'status': info_trade['state'], ###########################################################################
-        'date_created': datetime.datetime.strptime(info_trade['created_at'].split('+')[0],
-                                                   '%Y-%m-%dT%H:%M:%S').timestamp(),
         'date_closed': None if not info_trade['completed_at'] else datetime.datetime.strptime(
             info_trade['completed_at'].split('+')[0], '%Y-%m-%dT%H:%M:%S').timestamp(),
     }
@@ -58,15 +76,16 @@ def update_bd_gar_trade(info_trade):
     a = requests.post(URL_DJANGO + 'update/garantex/trade/', json=body_update_trade)
 
 
-def update_trades_garantex(garantex_user):
-    JWT = get_jwt(garantex_user['private_key'], garantex_user['uid'])
+@catch_error
+@logger.catch
+def update_trades_garantex(private_key, uid):
+    JWT = get_jwt(private_key, uid)
     trades_from_garantex = get_trades(JWT)
     trades_from_bd = adds_bd()
+    print(trades_from_bd)
+    print(trades_from_garantex)
     for gar_trade in trades_from_garantex:
         if str(gar_trade['id']) not in trades_from_bd:
-            create_bd_gar_trade(garantex_user, gar_trade)
+            create_bd_gar_trade(JWT, gar_trade)
         else:
             update_bd_gar_trade(gar_trade)
-
-print(1)
-update_trades_garantex(user)

@@ -21,7 +21,7 @@ def parse_garantex():
                 'price': actually_price,
             }
 
-            server_resp = requests.post(URL_DJANGO + 'api/update/garantex', json=exchange_info)
+            server_resp = requests.post(URL_DJANGO + 'update/garantex/', json=exchange_info)
             if (server_resp.status_code != 200):
                 print(f'[ERROR] {server_resp.status_code}')
             else:

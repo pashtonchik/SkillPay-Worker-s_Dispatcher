@@ -33,10 +33,15 @@ def catch_error(func):
 def connector():
     while True:
         try:
-            req_django = requests.get(URL_DJANGO + 'api/tasks/').json()
+            req_django = requests.get(URL_DJANGO + 'tasks/').json()
             for i in req_django:
-                req_check_adv = requests.post(URL_FLASK + 'check_bz_adverts', json=i['user'])
-                req_chech_trades = requests.post(URL_FLASK + 'check_bz_trades', json=i['user'])
+                if i['type'] == 'bz':
+                    req_check_adv = requests.post(URL_FLASK + 'check_bz_adverts', json=i['user'])
+                    req_chech_trades = requests.post(URL_FLASK + 'check_bz_trades', json=i['user'])
+                if i['type'] == 'gar':
+                    print('gar')
+                    req_check__gar_adv = requests.post(URL_FLASK + 'check_garantex_adverts', json=i['user'])
+                    req_chech_gar_trades = requests.post(URL_FLASK + 'check_garantex_trades', json=i['user'])
         except Exception as e:
             print(e)
             pass

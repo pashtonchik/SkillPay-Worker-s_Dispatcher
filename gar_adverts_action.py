@@ -9,17 +9,36 @@ user = {
 }
 
 
+url_error = URL_DJANGO + 'api/error/'
+
+
+def catch_error(func):
+    def wrapper(*args, **kwargs):
+        try:
+            res = func(*args, **kwargs)
+            return res
+        except Exception as e:
+            data = {
+                'error_class': str(type(e)),
+                'target': func.__name__,
+                'text': str(e),
+            }
+            r = requests.post(url_error, json=data)
+            pass
+    return wrapper
+
+
 def adds_bd():
     return requests.get(URL_DJANGO + 'get/ids/gar/adverts/').json()
 
 
-def create_bd_gar_add(user, info_trade):
+def create_bd_gar_add(gar_user_id, info_trade):
     body_create_advert = {
         'advert_id': info_trade['id'],
         'price': float(info_trade['price']),
         'paymethod': 443 if info_trade['payment_method'] == 'Тинькофф' else 3547,
         'is_active': info_trade['active'],
-        'user': user['id'],
+        'user': gar_user_id,
         'description': info_trade['description'],
         'direction': info_trade['direction'],
         'date_created': datetime.datetime.strptime(info_trade['created_at'].split('+')[0], '%Y-%m-%dT%H:%M:%S').timestamp(),
@@ -40,22 +59,22 @@ def update_bd_gar_advert(info_trade):
         'date_created': datetime.datetime.strptime(info_trade['created_at'].split('+')[0], '%Y-%m-%dT%H:%M:%S').timestamp(),
         'date_edited': datetime.datetime.strptime(info_trade['edited_at'].split('+')[0], '%Y-%m-%dT%H:%M:%S').timestamp(),
     }
-
     a = requests.post(URL_DJANGO + 'update/garantex/advert/', json=body_update_advert)
 
 
-def update_adverts_garantex(garantex_user):
-    JWT = get_jwt(garantex_user['private_key'], garantex_user['uid'])
-    adds_from_garantex = get_adds(JWT)
-    adds_from_bd = adds_bd()
-    for gar_add in adds_from_garantex:
-        if str(gar_add['id']) not in adds_from_bd:
-            create_bd_gar_add(garantex_user, gar_add)
-        else:
-            update_bd_gar_advert(gar_add)
+def update_adverts_garantex(private_key, uid, user_id):
+    try:
+        JWT = get_jwt(private_key, uid)
+        adds_from_garantex = get_adds(JWT)
+        adds_from_bd = adds_bd()
+        for gar_add in adds_from_garantex:
+            if str(gar_add['id']) not in adds_from_bd:
+                create_bd_gar_add(user_id, gar_add)
+            else:
+                update_bd_gar_advert(gar_add)
+    except Exception as e:
+        print('ошибка в апдейте адвертсов гарантекс')
 
-
-update_adverts_garantex(user)
 
 
 
