@@ -1,6 +1,9 @@
 import requests
 import time 
 
+
+
+
 import requests
 from log import logger
 from server import URL_DJANGO
