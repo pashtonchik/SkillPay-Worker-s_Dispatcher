@@ -66,7 +66,9 @@ def update_adverts_garantex(private_key, uid, user_id):
     try:
         JWT = get_jwt(private_key, uid)
         adds_from_garantex = get_adds(JWT)
+        print(adds_from_garantex)
         adds_from_bd = adds_bd()
+        print(adds_from_bd)
         for gar_add in adds_from_garantex:
             if str(gar_add['id']) not in adds_from_bd:
                 create_bd_gar_add(user_id, gar_add)

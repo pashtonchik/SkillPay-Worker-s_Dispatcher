@@ -35,9 +35,9 @@ def connector():
         try:
             req_django = requests.get(URL_DJANGO + 'tasks/').json()
             for i in req_django:
-                if i['type'] == 'bz':
-                    req_check_adv = requests.post(URL_FLASK + 'check_bz_adverts', json=i['user'])
-                    req_chech_trades = requests.post(URL_FLASK + 'check_bz_trades', json=i['user'])
+                # if i['type'] == 'bz':
+                #     req_check_adv = requests.post(URL_FLASK + 'check_bz_adverts', json=i['user'])
+                #     req_chech_trades = requests.post(URL_FLASK + 'check_bz_trades', json=i['user'])
                 if i['type'] == 'gar':
                     print('gar')
                     req_check__gar_adv = requests.post(URL_FLASK + 'check_garantex_adverts', json=i['user'])

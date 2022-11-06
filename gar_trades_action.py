@@ -58,13 +58,10 @@ def create_bd_gar_trade(jwt, info_trade):
 
     a = requests.post(URL_DJANGO + 'create/garantex/trade/', json=body_create_trade)
 
-    print(a.status_code)
-
 
 @catch_error
 @logger.catch
 def update_bd_gar_trade(info_trade):
-    print('update')
     body_update_trade = {
         'id': str(info_trade['id']),
         'counterDetails': info_trade['payment_details'],
@@ -82,8 +79,6 @@ def update_trades_garantex(private_key, uid):
     JWT = get_jwt(private_key, uid)
     trades_from_garantex = get_trades(JWT)
     trades_from_bd = adds_bd()
-    print(trades_from_bd)
-    print(trades_from_garantex)
     for gar_trade in trades_from_garantex:
         if str(gar_trade['id']) not in trades_from_bd:
             create_bd_gar_trade(JWT, gar_trade)
