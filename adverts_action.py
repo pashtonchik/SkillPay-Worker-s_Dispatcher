@@ -20,7 +20,7 @@ def catch_error(func):
                 'target': func.__name__,
                 'text': str(e),
             }
-            r = requests.post(URL_DJANGO + 'api/error/', json=data)
+            r = requests.post(URL_DJANGO + 'error/', json=data)
             pass
     return wrapper
 
@@ -66,7 +66,7 @@ def parse_average_amount(amounts_info, count):
 
 @catch_error
 def get_all_scripts():
-    req_scripts = requests.get(URL_DJANGO + 'api/get/scripts/')
+    req_scripts = requests.get(URL_DJANGO + 'get/scripts/')
     if req_scripts.status_code == 200:
         data_scripts = req_scripts.json()
     else:
@@ -83,7 +83,7 @@ def get_all_adverts(key, email, proxy):
     url = 'https://bitzlato.com/api/auth/whoami'
     user_id = requests.get(url, headers=headers, proxies=proxy).json()
     if r.status_code == 200:
-        exists_advert_id = requests.get(URL_DJANGO + 'api/adverts/').json()
+        exists_advert_id = requests.get(URL_DJANGO + 'adverts/').json()
         for advert in r.json():
             if not str(advert['id']) in exists_advert_id:
                 add_advert = {
@@ -96,7 +96,7 @@ def get_all_adverts(key, email, proxy):
                     'is_active': True if (advert['status'] == 'active') else False,
                     'user': user_id['userId']
                 }
-                r1 = requests.post(URL_DJANGO + 'api/create/advert/', json=add_advert)
+                r1 = requests.post(URL_DJANGO + 'create/advert/', json=add_advert)
         return r.json()
     else:
         return []
@@ -118,13 +118,13 @@ def edit_rate_value_advert(advert_id, average_price, key, email, proxy):
                 'advert_id' : advert_id
             }
 
-            get_price_garantex = URL_DJANGO + 'api/get_exchange_garantex/'
+            get_price_garantex = URL_DJANGO + 'get_exchange_garantex/'
             price_garantex = requests.get(get_price_garantex).json()['btc-rub']
             
             headers = authorization(key, email)
             get_adv = requests.get(url, headers=headers, proxies=proxy)
             if get_adv.status_code == 200:
-                advert_info = requests.post(URL_DJANGO + 'api/get_advert_info/', json=advert)
+                advert_info = requests.post(URL_DJANGO + 'get_advert_info/', json=advert)
                 if advert_info.json()['revenue_percentage'] != None:
                 
                     percent = float(advert_info.json()['revenue_percentage'])
@@ -181,7 +181,7 @@ def stop_script(script_id):
         'is_active': False,
     }
 
-    r = requests.post(URL_DJANGO + f'api/update/script/{script_id}/', json=changes)
+    r = requests.post(URL_DJANGO + f'update/script/{script_id}/', json=changes)
     if r.status_code == 200:
         return True
     else:
@@ -194,7 +194,7 @@ def start_script(script_id):
         'is_active': True,
     }
 
-    r = requests.post(URL_DJANGO + f'api/update/script/{script_id}/', json=changes)
+    r = requests.post(URL_DJANGO + f'update/script/{script_id}/', json=changes)
     if r.status_code == 200:
         return True
     else:
@@ -206,7 +206,7 @@ def edit_amount_script(script_id, average_amount):
     changes = {
         'average_price': average_amount,
     }
-    r = requests.post(URL_DJANGO + f'api/update/script/{script_id}/', json=changes)
+    r = requests.post(URL_DJANGO + f'update/script/{script_id}/', json=changes)
     if r.status_code == 200:
         return r.json()
     else:
@@ -216,7 +216,7 @@ def edit_amount_script(script_id, average_amount):
 @catch_error
 def synchron(advert_id, key, email, proxy):
     url = f'https://bitzlato.com/api/p2p/dsa/{advert_id}'
-    url_db = URL_DJANGO + f'api/get/advert_info/{advert_id}/'
+    url_db = URL_DJANGO + f'get/advert_info/{advert_id}/'
 
     advert_info_db = requests.get(url_db).json()
     changes_bz = {

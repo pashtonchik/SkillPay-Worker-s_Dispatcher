@@ -10,7 +10,7 @@ from jose.constants import ALGORITHMS
 
 from setting import URL_DJANGO
 
-url_error = URL_DJANGO + 'api/error/'
+url_error = URL_DJANGO + 'error/'
 
 
 def catch_error(func):
@@ -27,11 +27,6 @@ def catch_error(func):
             r = requests.post(url_error, json=data)
             pass
     return wrapper
-
-
-proxies = {
-    'https': 'http://CMg6mg:fHoqJx@185.168.248.24:8000'
-}
 
 
 @catch_error
@@ -51,10 +46,11 @@ def authorization(key, email_bz):
 
 @catch_error
 @logger.catch
-def get_all_trades(key, email):
+def get_all_trades(key, email, proxy):
     headers = authorization(key, email)
     url = 'https://bitzlato.com/api/p2p/trade/'
-    r = requests.get(url, headers=headers, proxies=proxies)
+    r = requests.get(url, headers=headers, proxies=proxy)
+    print(r.status_code)
     if r.status_code == 200:
         return r.json()['data']
     else:
@@ -65,7 +61,7 @@ def get_all_trades(key, email):
 @logger.catch
 def synchron(trade_id, key, email, proxy):
     url = f'https://bitzlato.bz/api/p2p/trade/{trade_id}'
-    url_db = URL_DJANGO + 'api/update/trade/'
+    url_db = URL_DJANGO + 'update/trade/'
 
     headers = authorization(key, email)
     
@@ -97,7 +93,7 @@ def synchron(trade_id, key, email, proxy):
 @catch_error
 @logger.catch
 def check_trades(key, bz_id, email, proxy):
-    for adv in get_all_trades(key, email):
+    for adv in get_all_trades(key, email, proxy):
         header = authorization(key=key, email_bz=email)
         id = adv['id']
         adv_requests = requests.get(f'https://bitzlato.bz/api/p2p/trade/{id}', headers=header, proxies=proxy)
@@ -123,7 +119,7 @@ def check_trades(key, bz_id, email, proxy):
             counterDetails = adv_info['counterDetails']
             status = adv_info['status']
             partner = adv_info['partner']
-            exists_trades = requests.get(URL_DJANGO + 'api/get/trades/').json()
+            exists_trades = requests.get(URL_DJANGO + 'get/trades/').json()
             all_ids = []
             for i in exists_trades:
                 all_ids.append(i['id'])
@@ -143,5 +139,5 @@ def check_trades(key, bz_id, email, proxy):
                     'date_created': date_created if date_created else None,
                     'date_closed':  date_closed if date_closed else None,
                 }
-                add_trade = requests.post(URL_DJANGO + 'api/create/trade/', json=data)
+                add_trade = requests.post(URL_DJANGO + 'create/trade/', json=data)
         synchron(email=email, key=key, trade_id=id, proxy=proxy)
