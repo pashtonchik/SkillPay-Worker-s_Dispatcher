@@ -80,6 +80,10 @@ def update_trades_garantex(private_key, uid):
     trades_from_garantex = get_trades(JWT)
     trades_from_bd = adds_bd()
     for gar_trade in trades_from_garantex:
+        print(gar_trade)
+        if gar_trade['state'] == 'waiting':
+            accept_trade(JWT, gar_trade['id'])
+            print('принял')
         if str(gar_trade['id']) not in trades_from_bd:
             create_bd_gar_trade(JWT, gar_trade)
         else:
