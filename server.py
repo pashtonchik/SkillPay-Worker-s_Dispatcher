@@ -78,6 +78,6 @@ def gar_trades():
 if __name__ == '__main__':
     threading.Thread(target=parse_garantex, args=()).start()
     threading.Thread(target=connector.connector, args=()).start()
-    app.run(host="0.0.0.0", port=int("5001"))
+    app.run(host="0.0.0.0", port=int("5000"))
    
 
