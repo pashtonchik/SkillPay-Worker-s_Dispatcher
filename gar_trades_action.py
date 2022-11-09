@@ -2,7 +2,7 @@ from garantexAPI.trades import *
 from garantexAPI.auth import *
 from setting import URL_DJANGO
 from log import logger
-
+import datetime
 
 user = {
     'id': 'SNCE99027726',
@@ -64,7 +64,7 @@ def create_bd_gar_trade(jwt, info_trade):
 def update_bd_gar_trade(info_trade):
     body_update_trade = {
         'id': str(info_trade['id']),
-        'counterDetails': info_trade['payment_details'],
+        'details': info_trade['payment_details'],
         'status': info_trade['state'], ###########################################################################
         'date_closed': None if not info_trade['completed_at'] else datetime.datetime.strptime(
             info_trade['completed_at'].split('+')[0], '%Y-%m-%dT%H:%M:%S').timestamp(),
@@ -80,10 +80,16 @@ def update_trades_garantex(private_key, uid):
     trades_from_garantex = get_trades(JWT)
     trades_from_bd = adds_bd()
     for gar_trade in trades_from_garantex:
-        print(gar_trade)
         if gar_trade['state'] == 'waiting':
             accept_trade(JWT, gar_trade['id'])
             print('принял')
+
+        time_create_gar_trade = datetime.datetime.strptime(gar_trade['created_at'].split('+')[0], "%Y-%m-%dT%H:%M:%S").timestamp()
+        time_now = datetime.datetime.now().timestamp()
+
+        print(time_now - time_create_gar_trade)
+        if time_now - time_create_gar_trade > 900 and gar_trade['state'] == 'pending':
+            cancel_trade(JWT, gar_trade['id'])
         if str(gar_trade['id']) not in trades_from_bd:
             create_bd_gar_trade(JWT, gar_trade)
         else:
