@@ -88,7 +88,7 @@ def update_trades_garantex(private_key, uid):
         time_now = datetime.datetime.now().timestamp()
 
         print(time_now - time_create_gar_trade)
-        if time_now - time_create_gar_trade > 900 and gar_trade['state'] == 'pending':
+        if time_now - time_create_gar_trade > 900 and gar_trade['state'] == 'pending' and not gar_trade['agent']:
             cancel_trade(JWT, gar_trade['id'])
         if str(gar_trade['id']) not in trades_from_bd:
             create_bd_gar_trade(JWT, gar_trade)
