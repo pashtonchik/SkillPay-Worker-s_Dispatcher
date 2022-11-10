@@ -30,7 +30,6 @@ def catch_error(func):
 
 
 @catch_error
-@logger.catch
 def authorization(key, email_bz):
     dt = datetime.datetime.now()
     ts = time.mktime(dt.timetuple())
@@ -45,7 +44,6 @@ def authorization(key, email_bz):
 
 
 @catch_error
-@logger.catch
 def get_all_trades(key, email, proxy):
     headers = authorization(key, email)
     url = 'https://bitzlato.com/api/p2p/trade/'
@@ -58,7 +56,6 @@ def get_all_trades(key, email, proxy):
 
 
 @catch_error
-@logger.catch
 def synchron(trade_id, key, email, proxy):
     url = f'https://bitzlato.bz/api/p2p/trade/{trade_id}'
     url_db = URL_DJANGO + 'update/trade/'
@@ -91,7 +88,6 @@ def synchron(trade_id, key, email, proxy):
     
 
 @catch_error
-@logger.catch
 def check_trades(key, bz_id, email, proxy):
     for adv in get_all_trades(key, email, proxy):
         header = authorization(key=key, email_bz=email)

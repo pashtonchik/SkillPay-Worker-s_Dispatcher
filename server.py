@@ -18,7 +18,6 @@ app = Flask(__name__)
 # URL_DJANGO = 'http://194.58.92.160:8000/'
 
 
-@logger.catch          
 @app.route('/check_bz_adverts', methods=['POST', 'GET'])
 def bz_adverts():
     data = request.get_json()
@@ -33,7 +32,6 @@ def bz_adverts():
     return "OK", 200, {'Content-Type': 'text/plain'}
 
 
-@logger.catch
 @app.route('/check_bz_trades', methods=['POST', 'GET'])
 def bz_trades():
     data = request.get_json()
@@ -48,7 +46,6 @@ def bz_trades():
     return "OK", 200, {'Content-Type': 'text/plain'}
 
 
-@logger.catch
 @app.route('/check_garantex_adverts', methods=['POST', 'GET'])
 def gar_adverts():
     data = request.get_json()
@@ -62,7 +59,6 @@ def gar_adverts():
     return "OK", 200, {'Content-Type': 'text/plain'}
 
 
-@logger.catch
 @app.route('/check_garantex_trades', methods=['POST', 'GET'])
 def gar_trades():
     data = request.get_json()

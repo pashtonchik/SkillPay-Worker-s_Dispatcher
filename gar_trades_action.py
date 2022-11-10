@@ -30,13 +30,11 @@ def catch_error(func):
 
 
 @catch_error
-@logger.catch
 def adds_bd():
     return requests.get(URL_DJANGO + 'get/ids/gar/trades/').json()
 
 
 @catch_error
-@logger.catch
 def create_bd_gar_trade(jwt, info_trade):
     trade_detail = get_trade_detail(jwt, info_trade['id'])
     body_create_trade = {
@@ -60,7 +58,6 @@ def create_bd_gar_trade(jwt, info_trade):
 
 
 @catch_error
-@logger.catch
 def update_bd_gar_trade(info_trade):
     body_update_trade = {
         'id': str(info_trade['id']),
@@ -74,7 +71,6 @@ def update_bd_gar_trade(info_trade):
 
 
 @catch_error
-@logger.catch
 def update_trades_garantex(private_key, uid):
     JWT = get_jwt(private_key, uid)
     trades_from_garantex = get_trades(JWT)
@@ -85,10 +81,11 @@ def update_trades_garantex(private_key, uid):
             print('принял')
 
         time_create_gar_trade = datetime.datetime.strptime(gar_trade['created_at'].split('+')[0], "%Y-%m-%dT%H:%M:%S").timestamp()
+        req_trade_info_from_bd = requests.get(URL_DJANGO + f'gar/trade/detail/{gar_trade["id"]}/')
+        trade_info_from_bd = req_trade_info_from_bd.json()
         time_now = datetime.datetime.now().timestamp()
-
-        print(time_now - time_create_gar_trade)
-        if time_now - time_create_gar_trade > 900 and gar_trade['state'] == 'pending' and not gar_trade['agent']:
+        if time_now - time_create_gar_trade > 900 and gar_trade['state'] == 'pending' and not trade_info_from_bd['gar_trade']['agent']:
+            print('cancel')
             cancel_trade(JWT, gar_trade['id'])
         if str(gar_trade['id']) not in trades_from_bd:
             create_bd_gar_trade(JWT, gar_trade)
