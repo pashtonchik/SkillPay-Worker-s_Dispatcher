@@ -9,7 +9,7 @@ user = {
 }
 
 
-url_error = URL_DJANGO + 'api/error/'
+url_error = URL_DJANGO + 'error/'
 
 
 def catch_error(func):
