@@ -61,8 +61,8 @@ def create_bd_gar_trade(jwt, info_trade):
 def update_bd_gar_trade(info_trade):
     body_update_trade = {
         'id': str(info_trade['id']),
-        'details': info_trade['payment_details'],
-        'status': info_trade['state'], ###########################################################################
+        'details': info_trade['payment_details'] if info_trade['payment_details'] else 'no payment details',
+        'status': info_trade['state'],
         'date_closed': None if not info_trade['completed_at'] else datetime.datetime.strptime(
             info_trade['completed_at'].split('+')[0], '%Y-%m-%dT%H:%M:%S').timestamp(),
     }
@@ -74,13 +74,10 @@ def update_trades_garantex(private_key, uid):
     JWT = get_jwt(private_key, uid)
     trades_from_garantex = get_trades(JWT)
     trades_from_bd = adds_bd()
-    print(trades_from_bd)
     for gar_trade in trades_from_garantex:
         if gar_trade['state'] == 'waiting':
             accept_trade(JWT, gar_trade['id'])
-            print('принял')
         if str(gar_trade['id']) not in trades_from_bd:
-            print('добавил')
             create_bd_gar_trade(JWT, gar_trade)
         else:
             time_create_gar_trade = datetime.datetime.strptime(gar_trade['created_at'].split('+')[0],
@@ -90,6 +87,10 @@ def update_trades_garantex(private_key, uid):
             time_now = datetime.datetime.now().timestamp()
             if time_now - time_create_gar_trade > 900 and gar_trade['state'] == 'pending' and not \
                     trade_info_from_bd['gar_trade']['agent']:
-                print('cancel')
                 cancel_trade(JWT, gar_trade['id'])
+                body_update_trade = {
+                    'id': str(gar_trade['id']),
+                    'status': 'time_cancel',
+                }
+                req_update_cancel = requests.post(URL_DJANGO + 'update/garantex/trade/', json=body_update_trade)
             update_bd_gar_trade(gar_trade)
