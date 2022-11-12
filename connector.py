@@ -45,4 +45,4 @@ def connector():
         except Exception as e:
             print(e)
             pass
-        time.sleep(15)
+        time.sleep(5)
