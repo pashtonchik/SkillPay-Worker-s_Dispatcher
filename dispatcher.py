@@ -1,10 +1,11 @@
 import time
 import requests
 
-from adverts_action import check_scripts
+from adverts_action import check_adverts
 from gar_adverts_action import update_adverts_garantex
 from gar_trades_action import update_trades_garantex
 from log import logger
+from parse_garantex import parse_garantex
 from setting import URL_FLASK, URL_DJANGO
 from trades_action import check_trades
 
@@ -31,21 +32,24 @@ while True:
     try:
         req_django = requests.get(URL_DJANGO + 'tasks/').json()
         for i in req_django:
+            print(req_django)
+            parse_garantex()
             if i['type'] == 'bz':
                 id = i['user']['id']
                 key = i['user']['key']
                 email = i['user']['email']
                 proxy = i['user']['proxy']
+                adverts = i['adverts']
                 # req_check_adv = requests.post(URL_FLASK + 'check_bz_adverts', json=i['user'])
-                # req_chech_trades = requests.post(URL_FLASK + 'check_bz_trades', json=i['user'])
-                check_trades(key, id, email, proxy)
-                check_scripts(key, id, email, proxy)
+                # req_check_trades = requests.post(URL_FLASK + 'check_bz_trades', json=i['user'])
+                #check_trades(key, id, email, proxy)
+                check_adverts(key, id, email, proxy, adverts)
             if i['type'] == 'gar':
                 user_id = i['user']['id']
                 uid = i['user']['uid']
                 private_key = i['user']['private_key']
-                update_trades_garantex(private_key, uid)
-                update_adverts_garantex(private_key, uid, user_id)
+                #update_trades_garantex(private_key, uid)
+                #update_adverts_garantex(private_key, uid, user_id)
                 # req_check__gar_adv = requests.post(URL_FLASK + 'check_garantex_adverts', json=i['user'])
                 # req_chech_gar_trades = requests.post(URL_FLASK + 'check_garantex_trades', json=i['user'])
     except Exception as e:

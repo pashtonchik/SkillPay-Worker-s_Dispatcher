@@ -22,6 +22,7 @@ def catch_error(func):
             }
             r = requests.post(URL_DJANGO + 'error/', json=data)
             pass
+
     return wrapper
 
 
@@ -44,10 +45,10 @@ def get_amounts(paymethod, min_amount, down, up, key, email, proxy, asset='BTC',
     headers = authorization(key, email)
     limit = up - down + 1
     skip = down - 1
-    url = f'https://bitzlato.bz/api/p2p/exchange/dsa/?lang=ru&limit={limit}&skip={skip}&'\
-    f'type=selling&currency={fiat}&cryptocurrency={asset}&' \
-    f'isOwnerVerificated=false&isOwnerTrusted=false&isOwnerActive=false&'\
-    f'amount={min_amount}&paymethod={str(paymethod)}&amountType=currency'
+    url = f'https://bitzlato.bz/api/p2p/exchange/dsa/?lang=ru&limit={limit}&skip={skip}&' \
+          f'type=selling&currency={fiat}&cryptocurrency={asset}&' \
+          f'isOwnerVerificated=false&isOwnerTrusted=false&isOwnerActive=false&' \
+          f'amount={min_amount}&paymethod={str(paymethod)}&amountType=currency'
     r = requests.get(url, headers=headers, proxies=proxy)
     if r.status_code == 200:
         return r.json()['data']
@@ -84,6 +85,7 @@ def get_all_adverts(key, email, proxy):
     user_id = requests.get(url, headers=headers, proxies=proxy).json()
     if r.status_code == 200:
         exists_advert_id = requests.get(URL_DJANGO + 'adverts/').json()
+        exists_advert_id = [advert['id'] for advert in exists_advert_id] if exists_advert_id.status_code == 200 else []
         for advert in r.json():
             if not str(advert['id']) in exists_advert_id:
                 add_advert = {
@@ -106,7 +108,7 @@ def get_all_adverts(key, email, proxy):
 def edit_rate_value_advert(advert_id, average_price, key, email, proxy):
     if (average_price != 0):
         url = f'https://bitzlato.com/api/p2p/dsa/{advert_id}'
-        
+
         changes = {
             'rateValue': average_price,
         }
@@ -115,28 +117,29 @@ def edit_rate_value_advert(advert_id, average_price, key, email, proxy):
         r = requests.put(url, headers=headers, proxies=proxy, json=changes)
         if r.status_code == 200:
             advert = {
-                'advert_id' : advert_id
+                'advert_id': advert_id
             }
 
             get_price_garantex = URL_DJANGO + 'get_exchange_garantex/'
             price_garantex = requests.get(get_price_garantex).json()['btc-rub']
-            
+
             headers = authorization(key, email)
             get_adv = requests.get(url, headers=headers, proxies=proxy)
             if get_adv.status_code == 200:
                 advert_info = requests.post(URL_DJANGO + 'get_advert_info/', json=advert)
                 if advert_info.json()['revenue_percentage'] != None:
-                
+
                     percent = float(advert_info.json()['revenue_percentage'])
-                
-                    side_percent = ( (float(price_garantex) * 0.998) / (float(get_adv.json()['rateValue']) * 1.005)- 1) * 100
-                
+
+                    side_percent = ((float(price_garantex) * 0.998) / (
+                                float(get_adv.json()['rateValue']) * 1.005) - 1) * 100
+
                     if side_percent < percent:
 
                         stop_advert(advert_id=advert_id, key=key, email=email, proxy=proxy)
-                
+
                     else:
-                
+
                         run_advert(advert_id=advert_id, key=key, email=email, proxy=proxy)
                 return r.json()
             else:
@@ -149,7 +152,7 @@ def edit_rate_value_advert(advert_id, average_price, key, email, proxy):
 def stop_advert(advert_id, key, email, proxy):
     headers = authorization(key, email)
     url = f'https://bitzlato.com/api/p2p/dsa/{advert_id}'
-    
+
     changes = {
         'status': 'pause',
     }
@@ -170,18 +173,18 @@ def run_advert(advert_id, key, email, proxy):
 
     r = requests.put(url, headers=headers, proxies=proxy, json=changes)
     if r.status_code == 200:
-        return r.json() 
+        return r.json()
     else:
         print('[ERROR] 164 line')
 
 
 @catch_error
-def stop_script(script_id):
+def stop_advert(script_id):
     changes = {
         'is_active': False,
     }
 
-    r = requests.post(URL_DJANGO + f'update/script/{script_id}/', json=changes)
+    r = requests.post(URL_DJANGO + f'update/advert/{script_id}/', json=changes)
     if r.status_code == 200:
         return True
     else:
@@ -189,12 +192,12 @@ def stop_script(script_id):
 
 
 @catch_error
-def start_script(script_id):
+def start_advert(script_id):
     changes = {
         'is_active': True,
     }
 
-    r = requests.post(URL_DJANGO + f'update/script/{script_id}/', json=changes)
+    r = requests.post(URL_DJANGO + f'update/advert/{script_id}/', json=changes)
     if r.status_code == 200:
         return True
     else:
@@ -202,11 +205,12 @@ def start_script(script_id):
 
 
 @catch_error
-def edit_amount_script(script_id, average_amount):
+def edit_amount_advert(advert_id, average_amount):
     changes = {
         'average_price': average_amount,
     }
-    r = requests.post(URL_DJANGO + f'update/script/{script_id}/', json=changes)
+    r = requests.post(URL_DJANGO + f'update/advert/{advert_id}/', json=changes)
+    print('внесли среднюю цену')
     if r.status_code == 200:
         return r.json()
     else:
@@ -215,46 +219,53 @@ def edit_amount_script(script_id, average_amount):
 
 @catch_error
 def synchron(advert_id, key, email, proxy):
+    print('id', advert_id)
     url = f'https://bitzlato.com/api/p2p/dsa/{advert_id}'
     url_db = URL_DJANGO + f'get/advert_info/{advert_id}/'
 
     advert_info_db = requests.get(url_db).json()
+    print(advert_info_db)
     changes_bz = {
-        'rateValue': advert_info_db['amount'],
+        'rateValue': advert_info_db['average_price'],
         'status': 'active' if advert_info_db['is_active'] else 'pause',
     }
 
     headers = authorization(key, email)
     r = requests.put(url, headers=headers, proxies=proxy, json=changes_bz)
+    print('запрос на изменение на бз', r.status_code)
+    print(r.text)
 
 
-
-@catch_error
-def check_scripts(key, bz_id, email, proxy):
+def check_adverts(key, bz_id, email, proxy, adverts):
     all_adverts = get_all_adverts(key, email, proxy)
     print('адвертс')
-    for script in get_all_scripts():
-        limit_min = script['script']['amount']
-        paymethod = script['script']['paymethod']
-        up = script['script']['upper_target']
-        down = script['script']['bottom_target']
+    for advert in adverts:
+        limit_min = advert['script']['amount']
+        paymethod = advert['script']['paymethod']
+        up = advert['upper_target']
+        down = advert['bottom_target']
         count = up - down + 1
+        print(advert['advert_id'])
         average_amount = parse_average_amount(get_amounts(paymethod, limit_min,
                                                           key=key, email=email, proxy=proxy, up=up, down=down), count)
-        updated_script = edit_amount_script(script['script']['id'], average_amount)
-        if (updated_script.get('revenue_percentage', None) and updated_script.get('actual_percentage', None)) \
-         and (updated_script.get('revenue_percentage', None) > updated_script.get('actual_percentage', None)):
-            stop_script(updated_script['id'])
+        updated_advert = edit_amount_advert(advert['advert_id'], average_amount)
+        if (updated_advert.get('revenue_percentage', None) and updated_advert.get('actual_percentage', None)) \
+                and (updated_advert.get('revenue_percentage', None) > updated_advert.get('actual_percentage', None)):
+            stop_advert(updated_advert['advert_id'])
+            print('stop')
         else:
-            start_script(updated_script['id'])
-        for advert_id in script['adverts']:
-            synchron(advert_id, key, email, proxy)   
+            start_advert(updated_advert['advert_id'])
+            print('start')
+        synchron(advert['advert_id'], key, email, proxy)
+        print(555)
         if average_amount == 0:
-            try_updated_script = edit_amount_script(script['script']['id'], average_amount)
-            if  (try_updated_script.get('revenue_percentage', None) and try_updated_script.get('actual_percentage', None)) \
-                and (try_updated_script.get('revenue_percentage', None) > try_updated_script.get('actual_percentage', None)):
-                stop_script(try_updated_script['id'])
+            try_updated_script = edit_amount_advert(advert['advert_id'], average_amount)
+            if (try_updated_script.get('revenue_percentage', None) and try_updated_script.get('actual_percentage',
+                                                                                              None)) \
+                    and (
+                    try_updated_script.get('revenue_percentage', None) > try_updated_script.get('actual_percentage',
+                                                                                                None)):
+                stop_advert(try_updated_script['advert_id'])
             else:
-                start_script(try_updated_script['id'])
-            for advert_id in script['adverts']:
-                synchron(advert_id, key, email, proxy)
+                stop_advert(try_updated_script['advert_id'])
+            synchron(advert['advert_id'], key, email, proxy)
