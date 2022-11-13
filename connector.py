@@ -1,12 +1,7 @@
 import requests
 import time 
-
-
-
-
 import requests
 from log import logger
-from server import URL_DJANGO
 
 URL_FLASK = 'http://127.0.0.1:5001/'
 url_error = URL_DJANGO + 'api/error/'

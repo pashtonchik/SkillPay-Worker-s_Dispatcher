@@ -48,7 +48,7 @@ def get_all_trades(key, email, proxy):
     headers = authorization(key, email)
     url = 'https://bitzlato.com/api/p2p/trade/'
     r = requests.get(url, headers=headers, proxies=proxy)
-    print(r.status_code)
+    print(r.status_code, r.elapsed.total_seconds())
     if r.status_code == 200:
         return r.json()['data']
     else:
@@ -64,7 +64,7 @@ def synchron(trade_id, key, email, proxy):
     
     get_trade = requests.get(url, headers=headers, proxies=proxy)
 
-    if (get_trade.status_code == 200):
+    if get_trade.status_code == 200:
         date_created = 0
         date_closed = 0 
         for i in get_trade.json()['history']:
@@ -79,61 +79,55 @@ def synchron(trade_id, key, email, proxy):
         changes_db = {
             'id': trade_id,
             'status': get_trade.json()['status'],
-            'date_closed' : date_closed, 
-            'date_created' : date_created
+            'date_closed': date_closed,
+            'date_created': date_created
         }
         r_db = requests.post(url_db, json=changes_db)
     else:
         pass
     
 
-@catch_error
 def check_trades(key, bz_id, email, proxy):
+    print('check_trades')
     for adv in get_all_trades(key, email, proxy):
-        header = authorization(key=key, email_bz=email)
         id = adv['id']
-        adv_requests = requests.get(f'https://bitzlato.bz/api/p2p/trade/{id}', headers=header, proxies=proxy)
+        if adv['status'] != 'cancel' and adv['status'] != 'confirm_payment':
+            header = authorization(key=key, email_bz=email)
+            adv_requests = requests.get(f'https://bitzlato.bz/api/p2p/trade/{id}', headers=header, proxies=proxy)
+            if adv_requests.status_code == 200:
+                print(adv['status'])
+                print('да')
+                date_created = 0
+                date_closed = 0
+                adv_info = adv_requests.json()
+                for i in adv_info['history']:
+                    if i['status'] == 'trade_created':
+                        date_created = i['date'] // 1000
+                    if i['status'] == 'confirm_payment':
+                        date_closed = i['date'] // 1000
+                    if i['status'] == 'cancel':
+                        date_closed = i['date'] // 1000
 
-        if adv_requests.status_code == 200:
-            date_created = 0
-            date_closed = 0 
-            adv_info = adv_requests.json()
-            for i in adv_info['history']:
-                if i['status'] == 'trade_created':
-                    date_created = i['date'] // 1000
-                if i['status'] == 'confirm_payment':
-                    date_closed = i['date'] // 1000
-                if i['status'] == 'cancel':
-                    date_closed = i['date'] // 1000
-
-            cryptocurrency = adv['cryptocurrency']['code']
-            cryptocurrency_amount = adv['cryptocurrency']['amount']
-            currency = adv['currency']['code']
-            currency_amount = adv['currency']['amount']
-            paymethod = adv['paymethod']
-            details = adv_info['details']
-            counterDetails = adv_info['counterDetails']
-            status = adv_info['status']
-            partner = adv_info['partner']
-            exists_trades = requests.get(URL_DJANGO + 'get/trades/').json()
-            all_ids = []
-            for i in exists_trades:
-                all_ids.append(i['id'])
-            if not str(id) in all_ids:
-                data = {
-                    'id': id,
-                    'bzuser_id': bz_id,
-                    'cryptocurrency':  cryptocurrency,
-                    'cryptocurrency_amount': cryptocurrency_amount,
-                    'currency': currency,
-                    'currency_amount': currency_amount,
-                    'paymethod': paymethod,
-                    'details': str(details),
-                    'counterDetails': str(counterDetails),
-                    'status': status,
-                    'partner': partner,
-                    'date_created': date_created if date_created else None,
-                    'date_closed':  date_closed if date_closed else None,
-                }
-                add_trade = requests.post(URL_DJANGO + 'create/trade/', json=data)
-        synchron(email=email, key=key, trade_id=id, proxy=proxy)
+                exists_trades = requests.get(URL_DJANGO + 'get/trades/').json()
+                all_ids = []
+                for i in exists_trades:
+                    all_ids.append(i['id'])
+                if not str(id) in all_ids:
+                    data = {
+                        'id': id,
+                        'bzuser_id': bz_id,
+                        'cryptocurrency':  adv['cryptocurrency']['code'],
+                        'cryptocurrency_amount': adv['cryptocurrency']['amount'],
+                        'currency': adv['currency']['code'],
+                        'currency_amount': adv['currency']['amount'],
+                        'paymethod': adv['paymethod'],
+                        'details': str(adv_info['details']),
+                        'counterDetails': str(adv_info['counterDetails']),
+                        'status': adv_info['status'],
+                        'partner': adv_info['partner'],
+                        'date_created': date_created if date_created else None,
+                        'date_closed':  date_closed if date_closed else None,
+                    }
+                    add_trade = requests.post(URL_DJANGO + 'create/trade/', json=data)
+            print(1)
+            synchron(email=email, key=key, trade_id=id, proxy=proxy)

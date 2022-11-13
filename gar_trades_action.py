@@ -71,6 +71,7 @@ def update_bd_gar_trade(info_trade):
 
 
 def update_trades_garantex(private_key, uid):
+    print(datetime.datetime.now(), '   update_trades_garantex')
     JWT = get_jwt(private_key, uid)
     trades_from_garantex = get_trades(JWT)
     trades_from_bd = adds_bd()
@@ -85,7 +86,8 @@ def update_trades_garantex(private_key, uid):
             req_trade_info_from_bd = requests.get(URL_DJANGO + f'gar/trade/detail/{gar_trade["id"]}/')
             trade_info_from_bd = req_trade_info_from_bd.json()
             time_now = datetime.datetime.now().timestamp()
-            if time_now - time_create_gar_trade > 900 and gar_trade['state'] == 'pending' and not \
+            limit_close = trade_info_from_bd['gar_trade']['time_close'] * 60
+            if time_now - time_create_gar_trade > limit_close and gar_trade['state'] == 'pending' and not \
                     trade_info_from_bd['gar_trade']['agent']:
                 cancel_trade(JWT, gar_trade['id'])
                 body_update_trade = {

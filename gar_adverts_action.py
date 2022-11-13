@@ -1,3 +1,5 @@
+import datetime
+
 from garantexAPI.adds import *
 from garantexAPI.auth import *
 from setting import URL_DJANGO
@@ -63,6 +65,7 @@ def update_bd_gar_advert(info_trade):
 
 
 def update_adverts_garantex(private_key, uid, user_id):
+    print(datetime.datetime.now(), '   update_adverts_garantex')
     try:
         JWT = get_jwt(private_key, uid)
         adds_from_garantex = get_adds(JWT)
