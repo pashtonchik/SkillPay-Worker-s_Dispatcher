@@ -43,7 +43,7 @@ while True:
                 adverts = i['adverts']
                 # req_check_adv = requests.post(URL_FLASK + 'check_bz_adverts', json=i['user'])
                 # req_check_trades = requests.post(URL_FLASK + 'check_bz_trades', json=i['user'])
-                #check_adverts(key, id, email, proxy, adverts)
+                check_adverts(key, id, email, proxy, adverts)
                 check_trades(key, id, email, proxy)
             if i['type'] == 'gar':
                 user_id = i['user']['id']
