@@ -81,10 +81,16 @@ def get_all_scripts():
 def get_all_adverts(bz_user_id, key, email, proxy):
     headers = authorization(key, email)
     url = 'https://bitzlato.bz/api/p2p/dsa/all'
+    print(1111)
     r = requests.get(url, headers=headers, proxies=proxy)
+    print(2222)
     if r.status_code == 200:
-        exists_advert_id = requests.get(URL_DJANGO + 'adverts/').json()
-        exists_advert_id = [advert['id'] for advert in exists_advert_id] if exists_advert_id.status_code == 200 else []
+        print(33333)
+        exists_advert_id = requests.get(URL_DJANGO + 'adverts/')
+        print(4444)
+        print(exists_advert_id)
+        exists_advert_id = [advert['advert_id'] for advert in exists_advert_id.json()] if exists_advert_id.status_code == 200 else []
+        print(exists_advert_id)
         for advert in r.json():
             if not str(advert['id']) in exists_advert_id:
                 add_advert = {
@@ -98,6 +104,7 @@ def get_all_adverts(bz_user_id, key, email, proxy):
                     'user': bz_user_id
                 }
                 r1 = requests.post(URL_DJANGO + 'create/advert/', json=add_advert)
+                print('r1', r1.status_code)
         return r.json()
     else:
         return []
@@ -134,7 +141,7 @@ def synchron(advert_id, key, email, proxy, advert_info_db):
 
 def check_adverts(key, bz_id, email, proxy, adverts):
     ########### раскомментить в случае если нужно создавать объявления в БД #############
-    #all_adverts = get_all_adverts(bz_id, key, email, proxy)
+    all_adverts = get_all_adverts(bz_id, key, email, proxy)
     ####################################################################################
     for advert in adverts:
         limit_min = advert['script']['amount']

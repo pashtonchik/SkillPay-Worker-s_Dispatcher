@@ -57,14 +57,15 @@ def get_all_trades(key, email, proxy):
 
 
 @catch_error
-def get_more_time(key, email, proxy, trade_id):
+def confirm_trade_bz(key, email, proxy, trade_id):
     header = authorization(key=key, email_bz=email)
-    data_timeout = {
-        "timeout": 10,
+    data_cancel = {
+        'type': "confirm-trade"
     }
-    get_more_time_req = requests.post(f'https://bitzlato.bz/api/p2p/trade/{trade_id}/timeout', headers=header,
-                                      proxies=proxy, json=data_timeout)
-    return get_more_time_req.status_code
+    adv_requests = requests.post(f'https://bitzlato.bz/api/p2p/trade/{trade_id}', headers=header,
+                                 proxies=proxy, json=data_cancel)
+    print('confirm-trade', adv_requests.status_code)
+    return adv_requests.status_code
 
 
 @catch_error
@@ -90,10 +91,9 @@ def synchron(trade_id, cur_trade):
 
     changes_db = {
         'id': trade_id,
-        'status': cur_trade['status'],
+        'status': 'trade_created' if cur_trade['status'] == 'confirm_trade' else cur_trade['status'],
         'date_closed': date_closed,
         'date_created': date_created,
-        'need_prolong': False
     }
     r_db = requests.post(URL_DJANGO + 'update/bz/trade/', json=changes_db)
 
@@ -136,14 +136,9 @@ def check_trades(key, bz_id, email, proxy):
                 add_trade = requests.post(URL_DJANGO + 'create/trade/', json=data)
         elif trade['status'] != 'cancel' and trade['status'] != 'confirm_payment':
             print(trade)
-
             cur_trade = requests.get(URL_DJANGO + f'bz/trade/detail/{str(trade["id"])}/').json()
-            flag = False
-            if cur_trade['bz']['need_prolong']:
-                more_time = get_more_time(key, email, proxy, trade["id"])
-                print(more_time)
-                if more_time == 200:
-                    flag = True
+            if trade['status'] == 'trade_created':
+                confirm_trade = confirm_trade_bz(key, email, proxy, trade["id"])
             time_now = datetime.datetime.now().timestamp()
             time_create = trade['date'] // 1000
             limit_close = cur_trade['bz']['time_close'] * 60
@@ -155,5 +150,6 @@ def check_trades(key, bz_id, email, proxy):
             header = authorization(key=key, email_bz=email)
             adv_requests = requests.get(f'https://bitzlato.bz/api/p2p/trade/{trade["id"]}', headers=header,
                                         proxies=proxy)
+            print(adv_requests.json())
             synchron(trade_id=str(trade["id"]), cur_trade=adv_requests.json())
             print(111111111111111111)
