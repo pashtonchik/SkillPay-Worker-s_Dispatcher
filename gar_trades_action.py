@@ -44,7 +44,7 @@ def create_bd_gar_trade(jwt, info_trade):
         'cryptocurrency_amount': str(info_trade['amount']),
         'currency': 'RUB',
         'currency_amount': str(info_trade['volume']),
-        'details': 'aaaaaaaa',
+        'card_number': 'aaaaaaaa',
         'paymethod': 443 if trade_detail['ad']['payment_method'] == 'Тинькофф' else 3547,
         'partner': info_trade['seller'],
         'status': info_trade['state'], ###########################################################################
@@ -61,13 +61,13 @@ def create_bd_gar_trade(jwt, info_trade):
 def update_bd_gar_trade(info_trade):
     body_update_trade = {
         'id': str(info_trade['id']),
-        'details': info_trade['payment_details'] if info_trade['payment_details'] else 'no payment details',
+        'card_number': info_trade['payment_details'] if info_trade['payment_details'] else 'no payment details',
         'status': info_trade['state'],
         'date_closed': None if not info_trade['completed_at'] else datetime.datetime.strptime(
             info_trade['completed_at'].split('+')[0], '%Y-%m-%dT%H:%M:%S').timestamp(),
     }
-
-    a = requests.post(URL_DJANGO + 'update/garantex/trade/', json=body_update_trade)
+    print(body_update_trade)
+    a = requests.post(URL_DJANGO + 'update/gar/trade/', json=body_update_trade)
 
 
 def update_trades_garantex(private_key, uid):
@@ -80,13 +80,13 @@ def update_trades_garantex(private_key, uid):
             accept_trade(JWT, gar_trade['id'])
         if str(gar_trade['id']) not in trades_from_bd:
             create_bd_gar_trade(JWT, gar_trade)
-        if gar_trade['state'] != 'completed' and gar_trade['state'] != 'canceled':
-            time_create_gar_trade = datetime.datetime.strptime(gar_trade['created_at'].split('+')[0],
-                                                               "%Y-%m-%dT%H:%M:%S").timestamp()
+        time_create_gar_trade = datetime.datetime.strptime(gar_trade['created_at'].split('+')[0],
+                                                           "%Y-%m-%dT%H:%M:%S").timestamp()
+        time_now = datetime.datetime.now().timestamp()
+        if time_now - time_create_gar_trade < 7200:
             req_trade_info_from_bd = requests.get(URL_DJANGO + f'gar/trade/detail/{gar_trade["id"]}/')
             if req_trade_info_from_bd.status_code == 200:
                 trade_info_from_bd = req_trade_info_from_bd.json()
-                time_now = datetime.datetime.now().timestamp()
                 limit_close = trade_info_from_bd['gar_trade']['time_close'] * 60
                 if time_now - time_create_gar_trade > limit_close and gar_trade['state'] == 'pending' and not \
                         trade_info_from_bd['gar_trade']['agent']:
@@ -96,5 +96,6 @@ def update_trades_garantex(private_key, uid):
                         'status': 'time_cancel',
                     }
                     if cancel_trade_flag:
-                        req_update_cancel = requests.post(URL_DJANGO + 'update/garantex/trade/', json=body_update_trade)
-                    update_bd_gar_trade(gar_trade)
+                        req_update_cancel = requests.post(URL_DJANGO + 'update/gar/trade/', json=body_update_trade)
+                    print(gar_trade)
+            update_bd_gar_trade(gar_trade)

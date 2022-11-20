@@ -47,9 +47,10 @@ def authorization(key, email_bz):
 @catch_error
 def get_all_trades(key, email, proxy):
     headers = authorization(key, email)
-    url = 'https://bitzlato.bz/api/p2p/trade/?onlyClosed=false&dateFrom=1664582400000'
+    url = 'https://bitzlato.bz/api/p2p/trade/?dateFrom=1664582400000'
     r = requests.get(url, headers=headers, proxies=proxy)
     print(r.status_code, r.elapsed.total_seconds())
+    print(r.json())
     if r.status_code == 200:
         return r.json()['data']
     else:
@@ -95,6 +96,7 @@ def synchron(trade_id, cur_trade):
         'date_closed': date_closed,
         'date_created': date_created,
     }
+    print(changes_db)
     r_db = requests.post(URL_DJANGO + 'update/bz/trade/', json=changes_db)
 
 
@@ -103,6 +105,8 @@ def check_trades(key, bz_id, email, proxy):
     exists_trades = requests.get(URL_DJANGO + 'get/trades/').json()
     all_ids = [i['id'] for i in exists_trades]
     for trade in get_all_trades(key, email, proxy):
+        time_now = datetime.datetime.now().timestamp()
+        time_create = trade['date'] // 1000
         if not str(trade["id"]) in all_ids:
             header = authorization(key=key, email_bz=email)
             adv_requests = requests.get(f'https://bitzlato.bz/api/p2p/trade/{trade["id"]}', headers=header,
@@ -134,18 +138,17 @@ def check_trades(key, bz_id, email, proxy):
                 print('добавляем в дб')
                 print(adv_info['status'])
                 add_trade = requests.post(URL_DJANGO + 'create/trade/', json=data)
-        elif trade['status'] != 'cancel':
+        elif time_now - time_create < 7200:
 
             print(trade)
             cur_trade = requests.get(URL_DJANGO + f'bz/trade/detail/{str(trade["id"])}/').json()
             if trade['status'] == 'trade_created':
                 confirm_trade = confirm_trade_bz(key, email, proxy, trade["id"])
-            time_now = datetime.datetime.now().timestamp()
-            time_create = trade['date'] // 1000
             limit_close = cur_trade['bz']['time_close'] * 60
             print(',timeeeeeeeeeeee', time_now - time_create)
 
-            if time_now - time_create > limit_close and not cur_trade['bz']['agent']:
+            if time_now - time_create > limit_close and not cur_trade['bz']['agent'] and cur_trade['bz'][
+                'status'] == 'trade_created':
                 cancel_bz_trade(key, email, proxy, trade["id"])
 
             header = authorization(key=key, email_bz=email)

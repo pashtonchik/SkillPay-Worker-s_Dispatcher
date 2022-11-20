@@ -49,10 +49,10 @@ while True:
                 user_id = i['user']['id']
                 uid = i['user']['uid']
                 private_key = i['user']['private_key']
-                #update_trades_garantex(private_key, uid)
-                #update_adverts_garantex(private_key, uid, user_id)
+                update_trades_garantex(private_key, uid)
+                update_adverts_garantex(private_key, uid, user_id)
                 # req_check__gar_adv = requests.post(URL_FLASK + 'check_garantex_adverts', json=i['user'])
-                # req_chech_gar_trades = requests.post(URL_FLASK + 'check_garantex_trades', json=i['user'])
+                #req_chech_gar_trades = requests.post(URL_FLASK + 'check_garantex_trades', json=i['user'])
         print(datetime.datetime.now().timestamp() - date_begin)
     except Exception as e:
         print(e)
