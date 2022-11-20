@@ -34,7 +34,7 @@ while True:
         date_begin = datetime.datetime.now().timestamp()
         req_django = requests.get(URL_DJANGO + 'tasks/').json()
         for i in req_django:
-            #parse_garantex()
+            parse_garantex()
             if i['type'] == 'bz':
                 id = i['user']['id']
                 key = i['user']['key']
