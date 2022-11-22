@@ -3,7 +3,6 @@ import datetime
 from locale import currency
 import time
 import random
-from log import logger
 import requests
 from jose import jws
 from jose.constants import ALGORITHMS
@@ -47,7 +46,7 @@ def authorization(key, email_bz):
 @catch_error
 def get_all_trades(key, email, proxy):
     headers = authorization(key, email)
-    url = 'https://bitzlato.bz/api/p2p/trade/?dateFrom=1664582400000'
+    url = 'https://bitzlato.net/api/p2p/trade/?dateFrom=1664582400000'
     r = requests.get(url, headers=headers, proxies=proxy)
     print(r.status_code, r.elapsed.total_seconds())
     print(r.json())
@@ -63,7 +62,7 @@ def confirm_trade_bz(key, email, proxy, trade_id):
     data_cancel = {
         'type': "confirm-trade"
     }
-    adv_requests = requests.post(f'https://bitzlato.bz/api/p2p/trade/{trade_id}', headers=header,
+    adv_requests = requests.post(f'https://bitzlato.net/api/p2p/trade/{trade_id}', headers=header,
                                  proxies=proxy, json=data_cancel)
     print('confirm-trade', adv_requests.status_code)
     return adv_requests.status_code
@@ -75,7 +74,7 @@ def cancel_bz_trade(key, email, proxy, trade_id):
     data_cancel = {
         'type': "cancel"
     }
-    adv_requests = requests.post(f'https://bitzlato.bz/api/p2p/trade/{trade_id}', headers=header,
+    adv_requests = requests.post(f'https://bitzlato.net/api/p2p/trade/{trade_id}', headers=header,
                                  proxies=proxy, json=data_cancel)
     print('cancel', adv_requests.status_code)
 
@@ -109,7 +108,7 @@ def check_trades(key, bz_id, email, proxy):
         time_create = trade['date'] // 1000
         if not str(trade["id"]) in all_ids:
             header = authorization(key=key, email_bz=email)
-            adv_requests = requests.get(f'https://bitzlato.bz/api/p2p/trade/{trade["id"]}', headers=header,
+            adv_requests = requests.get(f'https://bitzlato.net/api/p2p/trade/{trade["id"]}', headers=header,
                                         proxies=proxy)
             if adv_requests.status_code == 200:
                 date_created = 0
@@ -152,7 +151,7 @@ def check_trades(key, bz_id, email, proxy):
                 cancel_bz_trade(key, email, proxy, trade["id"])
 
             header = authorization(key=key, email_bz=email)
-            adv_requests = requests.get(f'https://bitzlato.bz/api/p2p/trade/{trade["id"]}', headers=header,
+            adv_requests = requests.get(f'https://bitzlato.net/api/p2p/trade/{trade["id"]}', headers=header,
                                         proxies=proxy)
             print(adv_requests.json())
             synchron(trade_id=str(trade["id"]), cur_trade=adv_requests.json())

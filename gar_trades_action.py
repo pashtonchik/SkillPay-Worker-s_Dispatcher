@@ -1,7 +1,6 @@
 from garantexAPI.trades import *
 from garantexAPI.auth import *
 from setting import URL_DJANGO
-from log import logger
 import datetime
 
 user = {

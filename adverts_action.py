@@ -2,7 +2,6 @@ import datetime
 import time
 import random
 import requests
-from log import logger
 from jose import jws
 from jose.constants import ALGORITHMS
 
@@ -46,7 +45,7 @@ def get_amounts(paymethod, min_amount, down, up, key, email, proxy, asset='BTC',
     headers = authorization(key, email)
     limit = up - down + 1
     skip = down - 1
-    url = f'https://bitzlato.bz/api/p2p/exchange/dsa/?lang=ru&limit={limit}&skip={skip}&' \
+    url = f'https://bitzlato.net/api/p2p/exchange/dsa/?lang=ru&limit={limit}&skip={skip}&' \
           f'type=selling&currency={fiat}&cryptocurrency={asset}&' \
           f'isOwnerVerificated=false&isOwnerTrusted=false&isOwnerActive=false&' \
           f'amount={min_amount}&paymethod={str(paymethod)}&amountType=currency'
@@ -80,7 +79,7 @@ def get_all_scripts():
 @catch_error
 def get_all_adverts(bz_user_id, key, email, proxy):
     headers = authorization(key, email)
-    url = 'https://bitzlato.bz/api/p2p/dsa/all'
+    url = 'https://bitzlato.net/api/p2p/dsa/all'
     print(1111)
     r = requests.get(url, headers=headers, proxies=proxy)
     print(2222)
@@ -127,7 +126,7 @@ def edit_amount_advert(advert_id, average_amount):
 def synchron(advert_id, key, email, proxy, advert_info_db):
     print('id', advert_id)
     begin = datetime.datetime.now().timestamp()
-    url = f'https://bitzlato.bz/api/p2p/dsa/{advert_id}'
+    url = f'https://bitzlato.net/api/p2p/dsa/{advert_id}'
 
     changes_bz = {
         'rateValue': advert_info_db['average_price'],

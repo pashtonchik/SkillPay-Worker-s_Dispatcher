@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import time
 import requests
@@ -5,7 +6,6 @@ import requests
 from adverts_action import check_adverts
 from gar_adverts_action import update_adverts_garantex
 from gar_trades_action import update_trades_garantex
-from log import logger
 from parse_garantex import parse_garantex
 from setting import URL_FLASK, URL_DJANGO
 from trades_action import check_trades
@@ -33,16 +33,14 @@ while True:
     try:
         date_begin = datetime.datetime.now().timestamp()
         req_django = requests.get(URL_DJANGO + 'tasks/').json()
+        parse_garantex()
         for i in req_django:
-            #parse_garantex()
             if i['type'] == 'bz':
                 id = i['user']['id']
                 key = i['user']['key']
                 email = i['user']['email']
                 proxy = i['user']['proxy']
                 adverts = i['adverts']
-                # req_check_adv = requests.post(URL_FLASK + 'check_bz_adverts', json=i['user'])
-                # req_check_trades = requests.post(URL_FLASK + 'check_bz_trades', json=i['user'])
                 check_adverts(key, id, email, proxy, adverts)
                 check_trades(key, id, email, proxy)
             if i['type'] == 'gar':
@@ -51,9 +49,7 @@ while True:
                 private_key = i['user']['private_key']
                 update_trades_garantex(private_key, uid)
                 update_adverts_garantex(private_key, uid, user_id)
-                # req_check__gar_adv = requests.post(URL_FLASK + 'check_garantex_adverts', json=i['user'])
-                #req_chech_gar_trades = requests.post(URL_FLASK + 'check_garantex_trades', json=i['user'])
-        print(datetime.datetime.now().timestamp() - date_begin)
+        print('main', datetime.datetime.now().timestamp() - date_begin)
     except Exception as e:
         print(e)
         pass
