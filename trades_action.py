@@ -46,7 +46,7 @@ def authorization(key, email_bz):
 @catch_error
 def get_all_trades(key, email, proxy):
     headers = authorization(key, email)
-    url = 'https://bitzlato.net/api/p2p/trade/?dateFrom=1664582400000'
+    url = 'https://bitzlato.bz/api/p2p/trade/?dateFrom=1664582400000&type=purchase'
     r = requests.get(url, headers=headers, proxies=proxy)
     print(r.status_code, r.elapsed.total_seconds())
     print(r.json())
