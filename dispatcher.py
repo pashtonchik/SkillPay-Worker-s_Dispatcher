@@ -33,6 +33,7 @@ while True:
     try:
         date_begin = datetime.datetime.now().timestamp()
         req_django = requests.get(URL_DJANGO + 'tasks/').json()
+        print(req_django)
         parse_garantex()
         for i in req_django:
             if i['type'] == 'bz':

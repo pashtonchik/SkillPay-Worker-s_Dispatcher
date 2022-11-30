@@ -143,12 +143,13 @@ def check_adverts(key, bz_id, email, proxy, adverts):
     all_adverts = get_all_adverts(bz_id, key, email, proxy)
     ####################################################################################
     for advert in adverts:
-        limit_min = advert['script']['amount']
-        paymethod = advert['script']['paymethod']
-        up = advert['upper_target']
-        down = advert['bottom_target']
-        count = up - down + 1
-        average_amount = parse_average_amount(get_amounts(paymethod, limit_min,
-                                                          key=key, email=email, proxy=proxy, up=up, down=down), count)
-        updated_advert = edit_amount_advert(advert['advert_id'], average_amount)
-        synchron(advert['advert_id'], key, email, proxy, updated_advert)
+        if advert['script']:
+            limit_min = advert['script']['amount']
+            paymethod = advert['script']['paymethod']
+            up = advert['upper_target']
+            down = advert['bottom_target']
+            count = up - down + 1
+            average_amount = parse_average_amount(get_amounts(paymethod, limit_min,
+                                                              key=key, email=email, proxy=proxy, up=up, down=down), count)
+            updated_advert = edit_amount_advert(advert['advert_id'], average_amount)
+            synchron(advert['advert_id'], key, email, proxy, updated_advert)
