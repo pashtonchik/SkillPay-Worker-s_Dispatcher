@@ -44,7 +44,7 @@ def create_bd_gar_trade(jwt, info_trade):
         'currency': 'RUB',
         'currency_amount': str(info_trade['volume']),
         'card_number': 'aaaaaaaa',
-        'paymethod': 443 if trade_detail['ad']['payment_method'] == 'Тинькофф' else 3547,
+        'paymethod': 443 if 'Тинькофф' in trade_detail['ad']['payment_method'] else 3547,
         'partner': info_trade['seller'],
         'status': info_trade['state'], ###########################################################################
         'date_created': datetime.datetime.strptime(info_trade['created_at'].split('+')[0],
