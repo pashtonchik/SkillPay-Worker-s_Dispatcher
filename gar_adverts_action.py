@@ -54,7 +54,7 @@ def update_bd_gar_advert(info_trade):
     body_update_advert = {
         'advert_id': info_trade['id'],
         'price': float(info_trade['price']),
-        'paymethod': 443 if info_trade['payment_method'] == 'Тинькофф' else 3547,
+        'paymethod': 443 if 'Тинькофф' in info_trade['payment_method'] else 3547,
         'is_active': info_trade['active'],
         'description': info_trade['description'],
         'direction': info_trade['direction'],
