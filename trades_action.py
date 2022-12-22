@@ -143,11 +143,11 @@ def check_trades(key, bz_id, email, proxy):
             cur_trade = requests.get(URL_DJANGO + f'bz/trade/detail/{str(trade["id"])}/').json()
             if trade['status'] == 'trade_created':
                 confirm_trade = confirm_trade_bz(key, email, proxy, trade["id"])
-            limit_close = cur_trade['bz']['time_close'] * 60
+            limit_close = cur_trade['bz']['time_close'] * 60 + 180
             print(',timeeeeeeeeeeee', time_now - time_create)
 
-            if time_now - time_create > limit_close and not cur_trade['bz']['agent'] and cur_trade['bz'][
-                'status'] == 'trade_created':
+            if time_now - time_create > limit_close and not cur_trade['bz']['agent'] and (cur_trade['bz'][
+                'status'] == 'trade_created' or cur_trade['bz']['status'] == 'delete_on_bot'):
                 cancel_bz_trade(key, email, proxy, trade["id"])
 
             header = authorization(key=key, email_bz=email)

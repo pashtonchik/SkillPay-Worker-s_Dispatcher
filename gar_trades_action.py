@@ -87,8 +87,8 @@ def update_trades_garantex(private_key, uid):
             req_trade_info_from_bd = requests.get(URL_DJANGO + f'gar/trade/detail/{gar_trade["id"]}/')
             if req_trade_info_from_bd.status_code == 200:
                 trade_info_from_bd = req_trade_info_from_bd.json()
-                limit_close = trade_info_from_bd['gar_trade']['time_close'] * 60
-                if time_now - time_create_gar_trade > limit_close and gar_trade['state'] == 'pending' and not \
+                limit_close = trade_info_from_bd['gar_trade']['time_close'] * 60 + 180
+                if time_now - time_create_gar_trade > limit_close and (gar_trade['state'] == 'pending' or gar_trade['state'] == 'delete_on_bot') and not \
                         trade_info_from_bd['gar_trade']['agent']:
                     cancel_trade_flag = cancel_trade(JWT, gar_trade['id'])
                     body_update_trade = {
